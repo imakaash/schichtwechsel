@@ -234,6 +234,48 @@ def extract_one_cmd(refnr: str) -> None:
     console.print(f"tokens: {outcome.input_tokens} in, {outcome.output_tokens} out")
 
 
+@app.command()
+def check() -> None:
+    """Data-quality checks on the latest snapshot. Exits 1 if any competitor dropped or vanished."""
+    with Warehouse() as wh:
+        health = wh.query(
+            """
+            SELECT competitor, postings, previous, change_pct, status
+            FROM mart.snapshot_health
+            WHERE snapshot_date = (SELECT max(snapshot_date) FROM postings_snapshot)
+            ORDER BY competitor
+            """
+        )
+        coverage = wh.query("SELECT * FROM mart.coverage ORDER BY open_postings DESC")
+    console.print(health.to_string(index=False))
+    console.rule("Coverage")
+    console.print(coverage.drop(columns="note").to_string(index=False))
+    for row in coverage.itertuples():
+        if isinstance(row.note, str):
+            console.print(f"{row.competitor}: {row.note}")
+    bad = health[health["status"] != "ok"]
+    if not bad.empty:
+        console.print(f"[red]problems: {', '.join(bad['competitor'] + ' ' + bad['status'])}[/red]")
+        raise typer.Exit(1)
+
+
+@app.command()
+def show(
+    view: Annotated[str, typer.Argument(help="Name of a view in the mart schema")],
+    limit: int = 30,
+) -> None:
+    """Print a mart view."""
+    with Warehouse() as wh:
+        views = set(
+            wh.query("SELECT view_name FROM duckdb_views() WHERE schema_name = 'mart'")["view_name"]
+        )
+        if view not in views:
+            console.print(f"unknown view; available: {', '.join(sorted(views))}")
+            raise typer.Exit(1)
+        frame = wh.query(f"SELECT * FROM mart.{view} LIMIT ?", [limit])
+    console.print(frame.to_string(index=False))
+
+
 labels_app = typer.Typer(no_args_is_help=True, help="Hand labels and extraction accuracy.")
 app.add_typer(labels_app, name="labels")
 LABELS_DIR = ROOT / "labels"

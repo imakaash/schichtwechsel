@@ -10,7 +10,7 @@ from typing import Any
 import duckdb
 import pandas as pd
 
-from schichtwechsel.config import RAW_DIR, WAREHOUSE
+from schichtwechsel.config import RAW_DIR, REFERENCE_DIR, WAREHOUSE, load_config
 
 
 def write_raw(items: list[dict[str, Any]], *, day: date, name: str, root: Path = RAW_DIR) -> Path:
@@ -28,8 +28,30 @@ class Warehouse:
     def __init__(self, path: Path = WAREHOUSE) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         self.con = duckdb.connect(str(path))
-        schema = resources.files("schichtwechsel.sql").joinpath("schema.sql").read_text("utf-8")
-        self.con.execute(schema)
+        sql = resources.files("schichtwechsel.sql")
+        self.con.execute(sql.joinpath("schema.sql").read_text("utf-8"))
+        self._load_reference()
+        self.con.execute(sql.joinpath("mart.sql").read_text("utf-8"))
+
+    def _load_reference(self) -> None:
+        """Small lookup tables, reloaded on every open so edits to the CSVs apply at once."""
+        for table, name in (("ref_store_counts", "store_counts"), ("ref_population", "population")):
+            path = (REFERENCE_DIR / f"{name}.csv").as_posix()
+            self.con.execute(
+                f"CREATE OR REPLACE TABLE {table} AS SELECT * FROM read_csv(?, header = true)",
+                [path],
+            )
+        competitors = pd.DataFrame(
+            [
+                {"competitor": c.key, "label": c.label, "segment": c.segment, "note": c.note}
+                for c in load_config().competitors
+            ]
+        )
+        self.con.register("competitors_frame", competitors)
+        self.con.execute(
+            "CREATE OR REPLACE TABLE ref_competitors AS SELECT * FROM competitors_frame"
+        )
+        self.con.unregister("competitors_frame")
 
     def close(self) -> None:
         self.con.close()

@@ -33,6 +33,7 @@ competitors:
     employers:
       - Müller Handels GmbH & Co. KG
     match: '^m(ü|ue)ller handels gmbh'
+    note: Hires store staff through its own career site; BA volume is not comparable.
 
   - key: budni
     label: Budni

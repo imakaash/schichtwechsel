@@ -13,7 +13,8 @@ Hiring and workforce intelligence for German drugstore retail.
 | Part | State |
 |---|---|
 | Daily snapshot of competitor job postings (BA Jobsuche) | working |
-| Structured extraction from posting text with Claude | in progress |
+| Structured extraction from posting text with Claude | working, backfill pending |
+| Analytics views: hiring pressure, pay, benefits, data quality | working |
 | Synthetic HR data, attrition and time-to-fill models | planned |
 | Analyst agent with guardrails, DE/EN | planned |
 | Web app and Azure deployment | planned |
@@ -44,6 +45,10 @@ sw extract submit                # send pending texts to the Batch API
 sw extract collect --wait        # store results once the batch has ended
 sw extract status                # progress, failures, token use
 sw extract one <refnr>           # one posting, sent directly, for prompt work
+
+sw labels score --name holdout   # extraction accuracy on hand labels
+sw check                         # data quality; exits 1 if a competitor dropped or vanished
+sw show hiring_pressure          # print any view in the mart schema
 ```
 
 Extraction needs an Anthropic API key: copy `.env.example` to `.env` and fill it in.

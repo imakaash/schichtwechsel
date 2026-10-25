@@ -23,7 +23,7 @@ Done: details fetch with text dedupe, schema, prompt, batch submit and collect, 
 6. Store results in `posting_features`, keyed by posting number and extraction version.
 7. ADRs: model choice and batching, injection threat model.
 
-## 3. Analytics layer (SQL)
+## 3. Analytics layer (SQL) (done, ADR 0009)
 
 1. Views for the hiring-pressure index per region, role and week; share of postings that state pay and pay ranges per competitor; benefits matrix; Ausbildung share and seasonality.
 2. Normalise posting counts by store count per competitor, from a small documented reference table.

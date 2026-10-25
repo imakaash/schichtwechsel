@@ -13,6 +13,7 @@ DATA_DIR = ROOT / "data"
 RAW_DIR = DATA_DIR / "raw"
 WAREHOUSE = DATA_DIR / "warehouse.duckdb"
 CONFIG_FILE = ROOT / "config" / "competitors.yaml"
+REFERENCE_DIR = ROOT / "config" / "reference"
 
 
 class Competitor(BaseModel):
@@ -22,6 +23,7 @@ class Competitor(BaseModel):
     query: str | None = None
     employers: list[str] = Field(default_factory=list)
     match: str
+    note: str | None = None
 
     @cached_property
     def pattern(self) -> re.Pattern[str]:

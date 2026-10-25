@@ -1,0 +1,17 @@
+region,name,population,year,source
+BADEN_WUERTTEMBERG,Baden-Württemberg,11245898,2024,Destatis population estimate (via de.wikipedia.org/wiki/Liste_der_deutschen_Bundesländer_nach_Bevölkerung)
+BAYERN,Bayern,13248928,2024,same
+BERLIN,Berlin,3685265,2024,same
+BRANDENBURG,Brandenburg,2556747,2024,same
+BREMEN,Bremen,704881,2024,same
+HAMBURG,Hamburg,1862565,2024,same
+HESSEN,Hessen,6280793,2024,same
+MECKLENBURG_VORPOMMERN,Mecklenburg-Vorpommern,1573597,2024,same
+NIEDERSACHSEN,Niedersachsen,8004489,2024,same
+NORDRHEIN_WESTFALEN,Nordrhein-Westfalen,18034454,2024,same
+RHEINLAND_PFALZ,Rheinland-Pfalz,4129569,2024,same
+SAARLAND,Saarland,1012141,2024,same
+SACHSEN,Sachsen,4042422,2024,same
+SACHSEN_ANHALT,Sachsen-Anhalt,2135597,2024,same
+SCHLESWIG_HOLSTEIN,Schleswig-Holstein,2959517,2024,same
+THUERINGEN,Thüringen,2100277,2024,same
