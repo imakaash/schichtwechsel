@@ -1,0 +1,21 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "sw discover (dm)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "schichtwechsel.cli",
+      "args": ["discover", "--only", "dm"],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "sw snapshot",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "schichtwechsel.cli",
+      "args": ["snapshot"],
+      "console": "integratedTerminal"
+    }
+  ]
+}

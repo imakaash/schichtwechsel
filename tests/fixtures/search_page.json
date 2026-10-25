@@ -1,0 +1,44 @@
+{
+  "ergebnisliste": [
+    {
+      "stellenangebotsart": "ARBEIT",
+      "stellenangebotsTitel": "Verkäufer (m/w/d) in Teilzeit",
+      "quereinstiegGeeignet": true,
+      "arbeitszeitSchichtNachtWochenende": false,
+      "arbeitszeitTeilzeitAbend": false,
+      "arbeitszeitTeilzeitNachmittag": true,
+      "arbeitszeitTeilzeitVormittag": false,
+      "arbeitszeitTeilzeitFlexibel": false,
+      "arbeitszeitVollzeit": false,
+      "eintrittszeitraum": {"von": "2026-11-01"},
+      "verguetungsangabe": "KEINE_ANGABEN",
+      "vertragsdauer": "UNBEFRISTET",
+      "istGeringfuegigeBeschaeftigung": false,
+      "stellenlokationen": [
+        {
+          "adresse": {"plz": "54290", "ort": "Trier", "region": "RHEINLAND_PFALZ", "land": "DEUTSCHLAND"},
+          "breite": 49.7557,
+          "laenge": 6.6394
+        }
+      ],
+      "veroeffentlichungszeitraum": {"von": "2026-10-20"},
+      "datumErsteVeroeffentlichung": "2026-10-20",
+      "aenderungsdatum": "2026-10-20T08:14:03.512",
+      "hauptberuf": "Verkäufer/in",
+      "firma": "dm-drogerie markt GmbH + Co. KG",
+      "referenznummer": "10000-1200000001-S",
+      "alleBerufe": ["Verkäufer/in"]
+    },
+    {
+      "stellenangebotsart": "ARBEIT",
+      "stellenangebotsTitel": "Sachbearbeitung Steuern",
+      "hauptberuf": "Sachbearbeiter/in",
+      "firma": "Steuerkanzlei Drogeriestraße",
+      "referenznummer": "10000-1200000002-S",
+      "veroeffentlichungszeitraum": {"von": "2026-10-18"}
+    }
+  ],
+  "maxErgebnisse": 2,
+  "page": 1,
+  "size": 100
+}

@@ -1,0 +1,71 @@
+# Employers tracked by the hiring radar.
+#
+# query: free text sent to the BA search ("was" parameter)
+# employers: exact employer names ("arbeitgeber" parameter), used instead of
+#        query when a free-text search returns nothing useful
+# match: regex on the employer name in the results; anything that does not
+#        match is dropped, so a search for "Rossmann" does not pull in a
+#        tax office on Rossmannstrasse.
+#
+# Run `sw discover` after changing a query to see which employer names
+# the search actually returns, then tighten `match` if needed.
+
+competitors:
+  - key: dm
+    label: dm-drogerie markt
+    segment: drugstore
+    query: dm-drogerie markt
+    match: '^dm[- ]drogerie'
+
+  - key: rossmann
+    label: Rossmann
+    segment: drugstore
+    query: Rossmann
+    # "Friedrich Rossmann" and "Zahnarztpraxis Roßmann" are unrelated
+    match: '^(dirk )?rossmann\b'
+
+  - key: mueller
+    label: Müller
+    segment: drugstore
+    # Müller posts very few jobs to the BA; store staff are hired through
+    # its own career site, see ADR 0005. "Müller Service GmbH" is the Theo
+    # Müller dairy group, not the drugstore.
+    employers:
+      - Müller Handels GmbH & Co. KG
+    match: '^m(ü|ue)ller handels gmbh'
+
+  - key: budni
+    label: Budni
+    segment: drugstore
+    query: Budnikowsky
+    # trades as "Iwan Budnikowsky" and "BUDNI Handels- und Service"
+    match: '\bbudni(kowsky)?\b'
+
+  - key: lidl
+    label: Lidl
+    segment: grocery
+    query: Lidl
+    match: '^lidl'
+
+  - key: aldi
+    label: Aldi
+    segment: grocery
+    query: Aldi
+    match: '^aldi'
+
+  - key: kaufland
+    label: Kaufland
+    segment: grocery
+    query: Kaufland
+    match: '^kaufland'
+
+search:
+  # 1 = Arbeit, 4 = Ausbildung / Duales Studium
+  offer_types: [1, 4]
+  page_size: 100
+  # the API refuses page > 100, so 10,000 results per search is the ceiling
+  max_pages: 100
+  # seconds between requests; the API is shared public infrastructure
+  pause: 0.5
+  # stellenlokationen.adresse.land; Lidl also posts its Austrian jobs here
+  countries: [DEUTSCHLAND]
