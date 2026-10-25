@@ -350,6 +350,69 @@ def models_time_to_fill() -> None:
     console.print(tables["time_to_fill_effects"].to_string(index=False))
 
 
+@app.command()
+def ask(
+    question: Annotated[str, typer.Argument(help="Question in German or English")],
+    lang: Annotated[str, typer.Option(help="Answer language: de or en")] = "de",
+    show_sql: Annotated[bool, typer.Option(help="Print the queries the agent ran")] = False,
+) -> None:
+    """Ask the analyst agent a question about the data."""
+    from schichtwechsel.agent.executor import ReadOnlyMart
+    from schichtwechsel.agent.loop import Session
+
+    mart = ReadOnlyMart()
+    try:
+        answer = Session(_anthropic(), mart).ask(question, lang)
+    finally:
+        mart.close()
+    console.print(answer.text)
+    console.rule()
+    if show_sql:
+        for q in answer.queries:
+            status = q["error"] or f"{len(q['rows'])} rows"
+            console.print(f"[dim]{q['query_id']} ({q['purpose']}): {status}\n{q['sql']}[/dim]")
+    flags = [f"declined: {answer.declined}"] if answer.declined else []
+    flags += [] if answer.grounded else ["NOT GROUNDED"]
+    flags += ["refused"] if answer.refused else []
+    console.print(
+        f"[dim]{len(answer.queries)} queries, {len(answer.charts)} charts, {answer.steps} steps, "
+        f"{answer.seconds}s, ${answer.cost_usd:.4f}"
+        + (f", {', '.join(flags)}" if flags else "")
+        + (f"\nchecks: {answer.checks}" if answer.checks else "")
+        + "[/dim]"
+    )
+
+
+@app.command("eval")
+def eval_agent(
+    only: Annotated[str | None, typer.Option(help="Comma separated question ids")] = None,
+    threshold: Annotated[float, typer.Option(help="Minimum pass rate; below exits 1")] = 0.9,
+) -> None:
+    """Run the golden questions against the analyst agent. Costs API credits."""
+    from schichtwechsel.agent.evals import load, run
+
+    cases = load()
+    if only:
+        wanted = set(_keys(only))
+        cases = [c for c in cases if c["id"] in wanted]
+    outcomes, path = run(_anthropic(), cases)
+
+    table = Table(title=f"Agent evals ({path.name})", title_justify="left")
+    for col in ("id", "lang", "result", "queries", "cost", "why"):
+        table.add_column(col)
+    for o in outcomes:
+        table.add_row(
+            o.id, o.lang, "pass" if o.passed else "[red]FAIL[/red]", str(o.queries),
+            f"${o.cost_usd:.3f}", "; ".join(o.failures)[:80],
+        )  # fmt: skip
+    console.print(table)
+    passed = sum(o.passed for o in outcomes)
+    cost = sum(o.cost_usd for o in outcomes)
+    console.print(f"{passed}/{len(outcomes)} passed, ${cost:.2f}, report in {path}")
+    if passed < threshold * len(outcomes):
+        raise typer.Exit(1)
+
+
 labels_app = typer.Typer(no_args_is_help=True, help="Hand labels and extraction accuracy.")
 app.add_typer(labels_app, name="labels")
 LABELS_DIR = ROOT / "labels"

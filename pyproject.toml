@@ -15,6 +15,7 @@ dependencies = [
     "httpx>=0.27",
     "pydantic>=2.7",
     "duckdb>=1.0",
+    "fastapi>=0.115",
     "openpyxl>=3.1",
     "pandas>=2.2",
     "pyarrow>=16",
@@ -23,6 +24,8 @@ dependencies = [
     "rich>=13",
     "scikit-learn>=1.5",
     "shap>=0.46",
+    "sqlglot>=25",
+    "uvicorn>=0.30",
     "python-dotenv>=1.0",
 ]
 

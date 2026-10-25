@@ -16,7 +16,7 @@ Hiring and workforce intelligence for German drugstore retail.
 | Structured extraction from posting text with Claude | working, backfill pending |
 | Analytics views: hiring pressure, pay, benefits, data quality | working |
 | Synthetic HR data, attrition and time-to-fill models | working |
-| Analyst agent with guardrails, DE/EN | planned |
+| Analyst agent with guardrails, DE/EN | working, 40/40 golden questions |
 | Web app and Azure deployment | planned |
 
 ## Setup
@@ -56,6 +56,15 @@ sw models time-to-fill           # days to fill an opening, median and P80
 ```
 
 The HR data is synthetic; see `docs/data-card.md` and the model cards in `docs/`.
+
+```bash
+sw ask "Wo ist der Druck auf Filialpersonal am höchsten?" --show-sql
+sw ask "Which retailer posts the most jobs per 100 stores?" --lang en
+sw eval                          # 40 golden questions, about 35 cents per run
+uvicorn schichtwechsel.agent.api:app --port 8000   # HTTP API for the UI
+```
+
+The agent's guardrails are described in `docs/adr/0011-analyst-agent.md`.
 
 Extraction needs an Anthropic API key: copy `.env.example` to `.env` and fill it in.
 

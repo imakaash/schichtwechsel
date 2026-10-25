@@ -40,7 +40,9 @@ Done: synthetic HR data and data card, attrition model, time-to-fill model, mode
 5. SHAP explanations, model card, calibration check.
 6. Model outputs stored as tables the agent can query.
 
-## 5. Bilingual HR analyst agent
+## 5. Bilingual HR analyst agent (done, ADR 0011)
+
+Done: tool loop, SQL guard, read-only connection, grounding and language checks, decline tool, 40 golden questions (40/40), logging, FastAPI. Forecast and risk explanations became views instead of tools. CI for the evals moves to step 6.
 
 1. FastAPI backend with a plain tool-use loop on the Anthropic SDK (Sonnet).
 2. Tools: `run_sql`, `forecast`, `make_chart`, `explain_risk`.
