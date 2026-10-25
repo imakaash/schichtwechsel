@@ -9,3 +9,6 @@ __pycache__/
 data/*
 !data/.gitkeep
 .DS_Store
+
+# personal notes, not part of the project
+notes/
