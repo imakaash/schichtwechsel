@@ -54,15 +54,30 @@ if ! az containerapp show --name sw-api --resource-group "$RG" &>/dev/null; then
     --output none
 fi
 
+# The API's session endpoints spend API credit, so they require a shared token
+# that only the UI has. Reuse it on re-runs so both apps keep matching.
+API_TOKEN="$(az containerapp secret show --name sw-api --resource-group "$RG" \
+  --secret-name api-token --query value -o tsv 2>/dev/null || true)"
+if [[ -z "$API_TOKEN" ]]; then
+  API_TOKEN="$(openssl rand -hex 24)"
+  az containerapp secret set --name sw-api --resource-group "$RG" \
+    --secrets "api-token=$API_TOKEN" --output none
+  az containerapp update --name sw-api --resource-group "$RG" \
+    --set-env-vars "SW_API_TOKEN=secretref:api-token" --output none
+fi
+
+# Streamlit reads its address and port from the environment; passing them as
+# --args would be taken by the Azure CLI as its own options.
 if ! az containerapp show --name sw-ui --resource-group "$RG" &>/dev/null; then
   az containerapp create --name sw-ui --resource-group "$RG" --environment "$ENV_NAME" \
     --image "$IMAGE" ${registry[@]+"${registry[@]}"} \
     --ingress external --target-port 8501 \
     --min-replicas 0 --max-replicas 1 --cpu 0.5 --memory 1.0Gi \
-    --command streamlit \
-    --args run src/schichtwechsel/ui/app.py --server.address 0.0.0.0 --server.port 8501 \
-    --secrets "access-code=$ACCESS_CODE" \
+    --command streamlit --args run src/schichtwechsel/ui/app.py \
+    --secrets "access-code=$ACCESS_CODE" "api-token=$API_TOKEN" \
     --env-vars SW_API_URL=http://sw-api "SW_ACCESS_CODE=secretref:access-code" \
+      "SW_API_TOKEN=secretref:api-token" STREAMLIT_SERVER_ADDRESS=0.0.0.0 \
+      STREAMLIT_SERVER_PORT=8501 \
     --output none
 fi
 

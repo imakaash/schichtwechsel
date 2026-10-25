@@ -9,6 +9,7 @@ import pandas as pd
 import streamlit as st
 
 API_URL = os.environ.get("SW_API_URL", "http://localhost:8000").rstrip("/")
+HEADERS = {"X-SW-Token": os.environ.get("SW_API_TOKEN", "")}
 
 
 class ApiError(RuntimeError):
@@ -35,7 +36,7 @@ def dataset(name: str) -> pd.DataFrame:
 
 
 def new_session() -> str:
-    resp = httpx.post(f"{API_URL}/sessions", timeout=30)
+    resp = httpx.post(f"{API_URL}/sessions", headers=HEADERS, timeout=30)
     resp.raise_for_status()
     return resp.json()["session_id"]
 
@@ -44,6 +45,7 @@ def ask(session_id: str, question: str, language: str) -> dict:
     resp = httpx.post(
         f"{API_URL}/sessions/{session_id}/ask",
         json={"question": question, "language": language},
+        headers=HEADERS,
         timeout=180,
     )
     if resp.status_code == 404:

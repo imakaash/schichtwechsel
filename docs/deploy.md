@@ -25,9 +25,12 @@ From then on, the daily workflow deploys every morning.
 | GitHub secret | `ANTHROPIC_API_KEY` | extraction in the daily job, weekly evals |
 | Container App `sw-api` secret | `anthropic-key` | the analyst agent |
 | Container App `sw-ui` secret | `access-code` | unlocks the analyst page |
+| Both container apps, secret | `api-token` | UI to API authentication for the session endpoints |
 | GitHub variables | `AZURE_*` | OIDC login, no password stored |
 
 ## Cost guards
+
+- The API's session endpoints (the ones that spend API credit) require a shared token, `SW_API_TOKEN`, which only the UI has. The setup script generates it. This does not rely on the network: on a Container Apps environment without a VNet, the API answered from the internet even with `external: false` ingress, so network isolation alone was not enough.
 
 - The API refuses new questions once the day's spend reaches `SW_DAILY_BUDGET_USD` (2 USD) and caps a conversation at `SW_MAX_QUESTIONS` (30). Both reset when the container restarts.
 - The analyst page is locked behind the access code; the dashboards are public.

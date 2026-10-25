@@ -65,3 +65,14 @@ def test_daily_budget_and_question_limit(monkeypatch):
     monkeypatch.setattr(api, "_spent", {})
     monkeypatch.setattr(api, "MAX_QUESTIONS", 2)
     assert ask().status_code == 429  # this session already asked twice
+
+
+def test_session_endpoints_need_the_token(monkeypatch):
+    monkeypatch.setattr(api, "API_TOKEN", "s3cret")
+    http = TestClient(api.app)
+    assert http.post("/sessions").status_code == 401
+    assert http.post("/sessions", headers={"X-SW-Token": "wrong"}).status_code == 401
+    assert http.get("/health").status_code == 200  # public data stays open
+    assert http.get("/data/meta").status_code == 200
+    monkeypatch.setattr(api, "client", lambda: None)
+    assert http.post("/sessions", headers={"X-SW-Token": "s3cret"}).status_code == 200

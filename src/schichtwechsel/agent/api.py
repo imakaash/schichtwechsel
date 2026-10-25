@@ -8,6 +8,7 @@ has its own read-only connection to the warehouse.
 
 from __future__ import annotations
 
+import hmac
 import os
 import threading
 import time
@@ -15,7 +16,7 @@ from dataclasses import asdict
 from datetime import date
 from typing import Literal
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, Header, HTTPException
 from pydantic import BaseModel, Field
 
 from schichtwechsel.agent.dashboard import QUERIES
@@ -27,6 +28,15 @@ MAX_SESSIONS = 50
 # The UI is public; these cap what anyone can spend of the API key.
 DAILY_BUDGET_USD = float(os.environ.get("SW_DAILY_BUDGET_USD", "2.0"))
 MAX_QUESTIONS = int(os.environ.get("SW_MAX_QUESTIONS", "30"))
+# Shared secret between UI and API for the endpoints that spend API credit.
+# Network rules alone are not relied on; unset means local development.
+API_TOKEN = os.environ.get("SW_API_TOKEN", "")
+
+
+def require_token(x_sw_token: str = Header(default="")) -> None:
+    if API_TOKEN and not hmac.compare_digest(x_sw_token.encode(), API_TOKEN.encode()):
+        raise HTTPException(401, "missing or wrong token")
+
 
 app = FastAPI(title="Schichtwechsel analyst", version="0.1.0")
 _sessions: dict[str, tuple[Session, float]] = {}
@@ -89,7 +99,7 @@ def data(name: str) -> dict:
         mart.close()
 
 
-@app.post("/sessions")
+@app.post("/sessions", dependencies=[Depends(require_token)])
 def new_session() -> dict:
     with _lock:
         _expire()
@@ -100,7 +110,7 @@ def new_session() -> dict:
     return {"session_id": session.id}
 
 
-@app.post("/sessions/{session_id}/ask")
+@app.post("/sessions/{session_id}/ask", dependencies=[Depends(require_token)])
 def ask(session_id: str, body: Question) -> dict:
     with _lock:
         entry = _sessions.get(session_id)
@@ -118,7 +128,7 @@ def ask(session_id: str, body: Question) -> dict:
     return asdict(answer)
 
 
-@app.delete("/sessions/{session_id}")
+@app.delete("/sessions/{session_id}", dependencies=[Depends(require_token)])
 def close_session(session_id: str) -> dict:
     with _lock:
         entry = _sessions.pop(session_id, None)
