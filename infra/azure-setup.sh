@@ -92,14 +92,23 @@ if [[ -z "$APP_ID" ]]; then
   APP_ID="$(az ad app create --display-name schichtwechsel-deploy --query appId -o tsv)"
   az ad sp create --id "$APP_ID" --output none
 fi
-if ! az ad app federated-credential list --id "$APP_ID" --query "[?name=='github-main']" -o tsv | grep -q .; then
-  az ad app federated-credential create --id "$APP_ID" --parameters "{
-    \"name\": \"github-main\",
-    \"issuer\": \"https://token.actions.githubusercontent.com\",
-    \"subject\": \"repo:$REPO:ref:refs/heads/main\",
-    \"audiences\": [\"api://AzureADTokenExchange\"]
-  }" --output none
-fi
+# GitHub's token names the repo by name, or by name and numeric ids
+# (repo:owner@ownerid/repo@repoid:...), depending on the account. Trust both.
+OWNER_ID="$(gh api "repos/$REPO" --jq .owner.id)"
+REPO_ID="$(gh api "repos/$REPO" --jq .id)"
+for cred in "github-main|repo:$REPO:ref:refs/heads/main" \
+  "github-main-ids|repo:$OWNER@$OWNER_ID/${REPO#*/}@$REPO_ID:ref:refs/heads/main"; do
+  name="${cred%%|*}"
+  subject="${cred#*|}"
+  if ! az ad app federated-credential list --id "$APP_ID" --query "[?name=='$name']" -o tsv | grep -q .; then
+    az ad app federated-credential create --id "$APP_ID" --parameters "{
+      \"name\": \"$name\",
+      \"issuer\": \"https://token.actions.githubusercontent.com\",
+      \"subject\": \"$subject\",
+      \"audiences\": [\"api://AzureADTokenExchange\"]
+    }" --output none
+  fi
+done
 az role assignment create --assignee "$APP_ID" --role Contributor \
   --scope "/subscriptions/$SUB/resourceGroups/$RG" --output none 2>/dev/null || true
 
