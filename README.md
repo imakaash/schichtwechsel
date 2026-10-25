@@ -17,7 +17,7 @@ Hiring and workforce intelligence for German drugstore retail.
 | Analytics views: hiring pressure, pay, benefits, data quality | working |
 | Synthetic HR data, attrition and time-to-fill models | working |
 | Analyst agent with guardrails, DE/EN | working, 40/40 golden questions |
-| Web app (DE/EN) and Azure deployment | UI working, deployment pending |
+| Web app (DE/EN) and Azure deployment | live, updated daily |
 
 ## Setup
 

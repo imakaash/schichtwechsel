@@ -25,3 +25,10 @@ The app has an API (agent and dashboard data) and a web UI. Data changes once a 
 - The image registry belongs to a private repository, so Azure pulls with a read-only GitHub token. Making the repository public later removes that step.
 - Agent logs and the spend counter are lost when a container restarts. Acceptable for a portfolio app; production use would send logs to a store.
 - The synthetic HR data and models are not regenerated daily; the fictional chain stays stable while the competitor data moves.
+
+## What the first deployment showed (2026-10-25)
+
+- Azure created an *express* Container Apps environment. It does not offer plain HTTP on ingress, and the API answered from the internet despite `external: false`. Network isolation was therefore not relied on: the endpoints that spend API credit require a token only the UI holds, and the UI calls the API over HTTPS.
+- Updating a container app's settings in an express environment did not restart the running container; the new settings applied with the next image deploy.
+- GitHub presented an OIDC subject with numeric ids (`repo:owner@id/repo@id:ref:refs/heads/main`). Azure trusts both that and the name-only form.
+- Student subscriptions allow only some regions; the app runs in France Central.
