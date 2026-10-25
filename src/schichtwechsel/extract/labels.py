@@ -76,12 +76,16 @@ DONE = "done"
 HEADER = "#"
 
 QUOTA = {"dm": 8, "rossmann": 8, "lidl": 8, "aldi": 8, "kaufland": 8, "budni": 8, "mueller": 2}
+# texts the prompt was never tuned on; Müller has no unlabelled text left
+HOLDOUT_QUOTA = {"dm": 5, "rossmann": 5, "lidl": 5, "aldi": 5, "kaufland": 5, "budni": 5}
 
 _HEAD_FILL = PatternFill("solid", fgColor="1F3A4D")
 _INPUT_FILL = PatternFill("solid", fgColor="FFF6DD")
 
 
-def sample(wh: Warehouse, quota: dict[str, int], seed: int = 7) -> list[dict[str, Any]]:
+def sample(
+    wh: Warehouse, quota: dict[str, int], seed: int = 7, exclude: frozenset[str] = frozenset()
+) -> list[dict[str, Any]]:
     rows = wh.query(
         """
         SELECT DISTINCT d.competitor, t.text_hash, t.body
@@ -92,14 +96,19 @@ def sample(wh: Warehouse, quota: dict[str, int], seed: int = 7) -> list[dict[str
     rng = random.Random(seed)
     picked = []
     for competitor, n in quota.items():
-        pool = [r for r in rows if r["competitor"] == competitor]
+        pool = [r for r in rows if r["competitor"] == competitor and r["text_hash"] not in exclude]
         picked += rng.sample(pool, min(n, len(pool)))
     rng.shuffle(picked)
     return picked
 
 
-def export(wh: Warehouse, path: Path, quota: dict[str, int] = QUOTA) -> int:
-    postings = sample(wh, quota)
+def export(
+    wh: Warehouse,
+    path: Path,
+    quota: dict[str, int] = QUOTA,
+    exclude: frozenset[str] = frozenset(),
+) -> int:
+    postings = sample(wh, quota, exclude=exclude)
     wb = Workbook()
     ws = wb.active
     ws.title = "Labels"
@@ -193,6 +202,12 @@ class Score:
     @property
     def accuracy(self) -> float:
         return self.correct / self.n if self.n else 0.0
+
+
+def hashes_in(path: Path) -> set[str]:
+    """Every text in a workbook, labelled or not."""
+    ws = load_workbook(path, read_only=True).active
+    return {str(row[2]) for row in ws.iter_rows(max_col=3, values_only=True) if row[0] == HEADER}
 
 
 def read_labels(path: Path) -> dict[str, dict[str, Any]]:

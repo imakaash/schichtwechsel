@@ -278,3 +278,16 @@ def test_labels_round_trip(warehouse, tmp_path):
     assert benefits["holiday_bonus"].true_positives == 1
     assert benefits["bike_leasing"].misses == [("rossmann good", True, False)]
     assert benefits["staff_discount"].misses == [("rossmann good", False, True)]
+
+
+def test_export_skips_texts_already_labelled(warehouse, tmp_path):
+    from schichtwechsel.extract import labels
+
+    seed_texts(warehouse, {"a": ROSSMANN, "b": ROSSMANN + " ", "c": ROSSMANN + "  "})
+    first = tmp_path / "gold.xlsx"
+    labels.export(warehouse, first, quota={"rossmann": 2})
+    taken = frozenset(labels.hashes_in(first))
+
+    second = tmp_path / "holdout.xlsx"
+    assert labels.export(warehouse, second, quota={"rossmann": 5}, exclude=taken) == 1
+    assert labels.hashes_in(second) == {"a", "b", "c"} - taken

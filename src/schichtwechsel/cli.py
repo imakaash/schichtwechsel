@@ -236,31 +236,35 @@ def extract_one_cmd(refnr: str) -> None:
 
 labels_app = typer.Typer(no_args_is_help=True, help="Hand labels and extraction accuracy.")
 app.add_typer(labels_app, name="labels")
-LABELS_FILE = ROOT / "labels" / "gold.xlsx"
+LABELS_DIR = ROOT / "labels"
+Name = Annotated[str, typer.Option(help="gold (used for prompt work) or holdout (never tuned on)")]
 
 
 @labels_app.command("export")
-def labels_export(force: bool = False) -> None:
-    """Write a labelling workbook with a stratified sample of posting texts."""
-    from schichtwechsel.extract.labels import export
+def labels_export(name: Name = "gold", force: bool = False) -> None:
+    """Write a labelling workbook with a stratified sample of texts not labelled yet."""
+    from schichtwechsel.extract.labels import HOLDOUT_QUOTA, QUOTA, export, hashes_in
 
-    if LABELS_FILE.exists() and not force:
-        console.print(f"{LABELS_FILE} exists; it may hold your labels. Use --force to replace it.")
+    path = LABELS_DIR / f"{name}.xlsx"
+    if path.exists() and not force:
+        console.print(f"{path} exists; it may hold your labels. Use --force to replace it.")
         raise typer.Exit(1)
+    taken = frozenset().union(*(hashes_in(p) for p in LABELS_DIR.glob("*.xlsx") if p != path))
     with Warehouse() as wh:
-        n = export(wh, LABELS_FILE)
-    console.print(f"wrote {n} postings to {LABELS_FILE}")
+        n = export(wh, path, HOLDOUT_QUOTA if name == "holdout" else QUOTA, exclude=taken)
+    console.print(f"wrote {n} postings to {path}, none of them in another label file")
 
 
 @labels_app.command("score")
 def labels_score(
+    name: Name = "gold",
     misses: Annotated[bool, typer.Option(help="List every disagreement")] = False,
 ) -> None:
     """Compare finished labels with the current extraction."""
     from schichtwechsel.extract.labels import score
 
     with Warehouse() as wh:
-        fields, benefits, n = score(wh, LABELS_FILE)
+        fields, benefits, n = score(wh, LABELS_DIR / f"{name}.xlsx")
     if not n:
         console.print("no block marked done yet")
         raise typer.Exit(1)
