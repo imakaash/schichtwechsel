@@ -65,7 +65,9 @@ Done: Streamlit UI with four pages in German and English, own palette and type (
 5. GitHub Actions: daily cron for snapshot, incremental extraction and data upload; CI on every push; weekly evals.
 6. Data state in a GitHub release, replaced daily.
 
-## 7. Presentation
+## 7. Presentation (in progress)
+
+Done: bilingual README with architecture diagram and decision table, findings write-up (docs/befunde.md), model and data cards. Open: the two-minute demo video.
 
 1. README in German and English, architecture diagram, model card, data card.
 2. Short write-up of findings, for example dm's part-time and minijob share against the others.
