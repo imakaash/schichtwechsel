@@ -102,6 +102,13 @@ class Warehouse:
             self.con.unregister("incoming")
         return len(rows)
 
+    def replace_table(self, table: str, frame: pd.DataFrame) -> None:
+        self.con.register("frame", frame)
+        try:
+            self.con.execute(f"CREATE OR REPLACE TABLE {table} AS SELECT * FROM frame")
+        finally:
+            self.con.unregister("frame")
+
     def query(self, sql: str, params: list[Any] | None = None) -> pd.DataFrame:
         return self.con.execute(sql, params or []).df()
 

@@ -276,6 +276,20 @@ def show(
     console.print(frame.to_string(index=False))
 
 
+hris_app = typer.Typer(no_args_is_help=True, help="Synthetic HR data for a fictional chain.")
+app.add_typer(hris_app, name="hris")
+
+
+@hris_app.command("generate")
+def hris_generate(seed: int = 2026, stores: int = 300) -> None:
+    """Rebuild the synthetic HR tables from the current competitor data."""
+    from schichtwechsel.hris.generate import generate
+
+    with Warehouse() as wh:
+        counts = generate(wh, seed=seed, n_stores=stores)
+    console.print(", ".join(f"{n:,} {name}" for name, n in counts.items()))
+
+
 labels_app = typer.Typer(no_args_is_help=True, help="Hand labels and extraction accuracy.")
 app.add_typer(labels_app, name="labels")
 LABELS_DIR = ROOT / "labels"
