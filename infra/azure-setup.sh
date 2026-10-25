@@ -66,6 +66,11 @@ if [[ -z "$API_TOKEN" ]]; then
     --set-env-vars "SW_API_TOKEN=secretref:api-token" --output none
 fi
 
+# The UI calls the API over HTTPS at its own address: express environments
+# do not serve plain HTTP, so http://sw-api would only get a redirect.
+API_URL="https://$(az containerapp show --name sw-api --resource-group "$RG" \
+  --query properties.configuration.ingress.fqdn -o tsv)"
+
 # Streamlit reads its address and port from the environment; passing them as
 # --args would be taken by the Azure CLI as its own options.
 if ! az containerapp show --name sw-ui --resource-group "$RG" &>/dev/null; then
@@ -75,7 +80,7 @@ if ! az containerapp show --name sw-ui --resource-group "$RG" &>/dev/null; then
     --min-replicas 0 --max-replicas 1 --cpu 0.5 --memory 1.0Gi \
     --command streamlit --args run src/schichtwechsel/ui/app.py \
     --secrets "access-code=$ACCESS_CODE" "api-token=$API_TOKEN" \
-    --env-vars SW_API_URL=http://sw-api "SW_ACCESS_CODE=secretref:access-code" \
+    --env-vars "SW_API_URL=$API_URL" "SW_ACCESS_CODE=secretref:access-code" \
       "SW_API_TOKEN=secretref:api-token" STREAMLIT_SERVER_ADDRESS=0.0.0.0 \
       STREAMLIT_SERVER_PORT=8501 \
     --output none

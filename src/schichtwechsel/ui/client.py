@@ -22,7 +22,7 @@ class LimitReached(RuntimeError):
 
 def _get(path: str) -> dict:
     try:
-        resp = httpx.get(f"{API_URL}{path}", timeout=30)
+        resp = httpx.get(f"{API_URL}{path}", timeout=30, follow_redirects=True)
         resp.raise_for_status()
     except httpx.HTTPError as exc:
         raise ApiError(str(exc)) from exc
@@ -36,7 +36,7 @@ def dataset(name: str) -> pd.DataFrame:
 
 
 def new_session() -> str:
-    resp = httpx.post(f"{API_URL}/sessions", headers=HEADERS, timeout=30)
+    resp = httpx.post(f"{API_URL}/sessions", headers=HEADERS, timeout=30, follow_redirects=True)
     resp.raise_for_status()
     return resp.json()["session_id"]
 
@@ -47,6 +47,7 @@ def ask(session_id: str, question: str, language: str) -> dict:
         json={"question": question, "language": language},
         headers=HEADERS,
         timeout=180,
+        follow_redirects=True,
     )
     if resp.status_code == 404:
         raise KeyError("session expired")

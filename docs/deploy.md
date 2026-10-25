@@ -30,7 +30,7 @@ From then on, the daily workflow deploys every morning.
 
 ## Cost guards
 
-- The API's session endpoints (the ones that spend API credit) require a shared token, `SW_API_TOKEN`, which only the UI has. The setup script generates it. This does not rely on the network: on a Container Apps environment without a VNet, the API answered from the internet even with `external: false` ingress, so network isolation alone was not enough.
+- The API's session endpoints (the ones that spend API credit) require a shared token, `SW_API_TOKEN`, which only the UI has. The setup script generates it. This does not rely on the network: the environment Azure created is an *express* environment, where the API answered from the internet even with `external: false` ingress and plain HTTP is not offered. The UI therefore calls the API at its HTTPS address, and the token is what protects it.
 
 - The API refuses new questions once the day's spend reaches `SW_DAILY_BUDGET_USD` (2 USD) and caps a conversation at `SW_MAX_QUESTIONS` (30). Both reset when the container restarts.
 - The analyst page is locked behind the access code; the dashboards are public.
