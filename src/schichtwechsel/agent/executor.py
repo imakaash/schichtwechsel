@@ -131,6 +131,15 @@ class ReadOnlyMart:
             lines.append(f"mart.{view}: {note}\n  columns: {', '.join(columns.get(view, []))}")
         return "\n".join(lines)
 
+    def fetch(self, sql: str) -> dict[str, Any]:
+        """Run fixed, server-side SQL (dashboard queries, never model output)."""
+        cursor = self.con.execute(sql)
+        rows = cursor.fetchall()
+        return {
+            "columns": [d[0] for d in cursor.description],
+            "rows": [[_plain(v) for v in row] for row in rows],
+        }
+
     def run(self, query_id: str, sql: str, purpose: str) -> QueryResult:
         result = QueryResult(query_id=query_id, sql=sql, purpose=purpose)
         try:

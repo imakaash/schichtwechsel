@@ -54,7 +54,9 @@ Done: tool loop, SQL guard, read-only connection, grounding and language checks,
 4. About 40 golden questions in German and English, checking numbers, refusals and language. Runs in CI.
 5. Logging of tool calls, tokens and cost per question.
 
-## 6. UI, deployment and automation
+## 6. UI, deployment and automation (in progress, ADR 0012)
+
+Done: Streamlit UI with four pages in German and English, own palette and type (docs/design.md), Dockerfile, CI, daily and eval workflows, Azure setup script, cost guards. Open: Azure account, first deploy.
 
 1. Streamlit UI in its own container. UI text in `de.json` and `en.json`, data in canonical codes. Pages: competitor radar (map and trends), benefits comparison, workforce risk, agent chat.
 2. Own palette and typography, no default theme.

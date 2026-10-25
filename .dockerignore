@@ -1,0 +1,11 @@
+# allowlist: only what the image needs; .env and raw data never enter the build
+*
+!pyproject.toml
+!README.md
+!LICENSE
+!src/
+!config/
+!.streamlit/
+!data/warehouse.duckdb
+**/__pycache__
+**/*.pyc

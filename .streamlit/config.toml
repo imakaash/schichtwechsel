@@ -1,0 +1,48 @@
+# Schichtwechsel UI theme. Palette validated with the dataviz checks in
+# docs/design.md: categorical slots pass all-pairs CVD and contrast in both
+# modes; ramps are single-hue and monotone.
+
+[server]
+headless = true
+
+[browser]
+gatherUsageStats = false
+
+[client]
+toolbarMode = "minimal"
+
+[theme]
+font = "Schibsted Grotesk:https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700&display=swap, sans-serif"
+headingFont = "Schibsted Grotesk, sans-serif"
+codeFont = "JetBrains Mono:https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap, monospace"
+headingFontWeights = [700, 650, 600, 600, 600, 600]
+baseRadius = "6px"
+buttonRadius = "6px"
+showWidgetBorder = true
+showSidebarBorder = true
+
+[theme.light]
+primaryColor = "#1f64b0"
+backgroundColor = "#f7f5f0"
+secondaryBackgroundColor = "#efebe3"
+textColor = "#1b1f24"
+linkColor = "#1f64b0"
+borderColor = "#e1dccf"
+dataframeHeaderBackgroundColor = "#efebe3"
+codeTextColor = "#1f4f8a"
+codeBackgroundColor = "#ebe6dc"
+chartCategoricalColors = ["#1f64b0", "#c7761a", "#2a9d8f"]
+chartSequentialColors = ["#e3ebf4", "#bcd0e8", "#8fb1da", "#5d8cc7", "#3469ab", "#1f4f8a", "#153a66"]
+
+[theme.dark]
+primaryColor = "#3f84d1"
+backgroundColor = "#141a22"
+secondaryBackgroundColor = "#1c2430"
+textColor = "#ece8df"
+linkColor = "#6d9edb"
+borderColor = "#2a3340"
+dataframeHeaderBackgroundColor = "#1c2430"
+codeTextColor = "#9bbde8"
+codeBackgroundColor = "#1c2430"
+chartCategoricalColors = ["#3f84d1", "#c27a22", "#2fa595"]
+chartSequentialColors = ["#23324a", "#2a4a7a", "#3466a8", "#4a83cc", "#6d9edb", "#9bbde8", "#c9dbf2"]
