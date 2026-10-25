@@ -25,31 +25,45 @@ store), logistics (warehouse, Lager, Kommissionierung), head_office (Zentrale, a
 purchasing, marketing, HR, IT), technical (Haustechnik, maintenance, construction), driving \
 (Fahrer, Berufskraftfahrer), other.
 - track: apprenticeship (Ausbildung), dual_study (duales Studium), internship (Praktikum, \
-Trainee), seasonal_temp (Aushilfe for a season or a fixed short period), otherwise regular.
-- entry_requirement: none (Quereinsteiger welcome, no training needed), vocational \
-(abgeschlossene Ausbildung expected), degree (Studium expected), not_stated.
+Trainee), seasonal_temp (help for a named season or short period, e.g. Weihnachtsaushilfe, \
+Inventurhelfer), side_job (the posting presents the job as Aushilfe, Studentenjob, Werkstudent \
+or Nebenjob), otherwise regular. Few hours or a Minijob alone do not make a side_job.
+- entry_requirement: none (Quereinsteiger welcome or no training needed; apprenticeships and \
+dual study are none unless they ask for a finished vocational training), vocational \
+(abgeschlossene Ausbildung expected), degree (Studium expected), not_stated. When the text \
+welcomes career changers and also lists a training as one option ("z. B."), it is none.
 - hours_min / hours_max: weekly hours from the title or text. "3-25 Std./Wo." gives 3 and 25. \
 Full time without a number stays null.
-- contract: permanent (unbefristet), fixed_term (befristet), not_stated.
-- pay_min / pay_max / pay_period: only euro figures the posting states. One figure fills both. \
+- contract: the contract offered now. permanent (unbefristet), fixed_term (befristet, or \
+any reference to the duration of the Befristung), not_stated. A promise about later, such as \
+a permanent contract after the apprenticeship, does not count.
+- pay_min / pay_max / pay_period: only euro figures the posting states for the base wage or \
+salary. Supplements, allowances and bonuses (Zulagen, Zuschläge, Vergütung für \
+Vertretung, Urlaubs- or Weihnachtsgeld amounts) are not pay; they may still be benefits. \
+One figure fills both. \
 pay_evidence is the shortest fragment that contains every figure, copied exactly as written, \
 including the original number format. No figures: all four null.
-- tariff: above_tariff (übertariflich), tariff (nach Tarif, tarifliche Vergütung, Tarifvertrag), \
-not_mentioned.
+- tariff: above_tariff (übertariflich), tariff (nach Tarif, tarifliche Vergütung, Tarifvertrag, \
+Tarifregelungen, tarifliche Leistungen), not_mentioned.
 - staff_discount_pct: the percentage of the staff discount (Mitarbeiterrabatt, Personalrabatt).
 - vacation_days: days per year, counted for a five-day week. "6 Wochen Urlaub" is 30.
 - benefits: holiday_bonus (Urlaubsgeld), christmas_bonus (Weihnachtsgeld), company_pension \
 (Betriebsrente, Altersvorsorge), capital_forming (vermögenswirksame Leistungen), \
 staff_discount (discount in the employer's own stores), corporate_discounts (Corporate \
-Benefits, discounts with other shops, travel or gyms), public_transport (Deutschlandticket, \
+Benefits, discounts with other shops or travel; gyms belong to health_fitness), \
+public_transport (Deutschlandticket, \
 Jobticket), bike_leasing (JobRad, Bikeleasing), health_fitness (Gesundheitsangebote, \
 Hansefit, EGYM Wellpass, fitness offers), training (Schulungen, Weiterbildung, Lernwelt), \
-career_path (Aufstiegsmöglichkeiten, Karriereprogramme), shift_premiums (Zuschläge), \
-paid_overtime (bezahlte Überstunden, minutengenaue Zeiterfassung), early_scheduling \
+career_path (Aufstiegsmöglichkeiten, Karriereprogramme), shift_premiums (any Zuschläge, \
+also "Leistungen gemäß Tarifvertrag (Zuschläge ...)"), paid_overtime (only when overtime pay \
+or compensation is stated; minutengenaue Zeiterfassung alone is not enough), early_scheduling \
 (frühzeitige Dienst- oder Schichtplanung), free_food_drinks (kostenlose Getränke, Obst), \
 workwear (Arbeitskleidung).
-- german_level: basic, good (gute Deutschkenntnisse, beherrscht die deutsche Sprache), fluent \
-(sehr gut, fließend, verhandlungssicher), not_mentioned."""
+- german_level: basic (Grundkenntnisse), good (gute Deutschkenntnisse), fluent (sehr gut, \
+fließend, verhandlungssicher, beherrscht die deutsche Sprache, Kommunikationsstärke in \
+Deutsch), not_mentioned.
+- posting_language: the language the posting is written in, as a two-letter code (de, en, \
+hu, pl, ...)."""
 
 
 def user_message(text: str) -> str:

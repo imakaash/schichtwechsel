@@ -117,6 +117,10 @@ CREATE TABLE IF NOT EXISTS posting_features (
     PRIMARY KEY (text_hash, extractor_version)
 );
 
+ALTER TABLE posting_features ADD COLUMN IF NOT EXISTS posting_language VARCHAR;
+-- why the model's pay figures were dropped, if they were
+ALTER TABLE posting_features ADD COLUMN IF NOT EXISTS pay_rejected VARCHAR;
+
 -- Anything that did not make it into posting_features, with the reason.
 -- Nothing is dropped silently: a text is retried once, then stays here
 -- for review.

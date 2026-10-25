@@ -11,7 +11,7 @@ from schichtwechsel.ba_client import BAClient
 from schichtwechsel.details import fetch_details, pending, text_hash
 from schichtwechsel.extract import runner
 from schichtwechsel.extract.prompt import user_message
-from schichtwechsel.extract.schema import PostingFeatures, grounding_problems
+from schichtwechsel.extract.schema import PostingFeatures, pay_problems
 from schichtwechsel.storage import Warehouse
 
 ROSSMANN = (
@@ -38,6 +38,7 @@ def features(**overrides) -> dict:
         "benefits": ["staff_discount", "holiday_bonus", "staff_discount"],
         "german_level": "not_mentioned",
         "suspicious_text": False,
+        "posting_language": "de",
     }
     return base | overrides
 
@@ -59,13 +60,11 @@ def test_features_dedupe_and_sort_benefits():
 @pytest.mark.parametrize(
     "overrides",
     [
-        {"pay_evidence": None},
-        {"pay_period": None},
-        {"pay_min": 1500.0, "pay_max": 1500.0},  # monthly figure labelled hourly
         {"hours_min": 30, "hours_max": 20},
         {"staff_discount_pct": 90},
         {"benefits": ["free_parking"]},
         {"surprise": True},
+        {"posting_language": "German"},
     ],
 )
 def test_features_reject_implausible_values(overrides):
@@ -73,22 +72,45 @@ def test_features_reject_implausible_values(overrides):
         PostingFeatures.model_validate(features(**overrides))
 
 
-def test_grounding_accepts_german_number_formats():
-    f = PostingFeatures.model_validate(features())
-    assert grounding_problems(f, ROSSMANN) == []
+def check_pay(**overrides) -> list[str]:
+    return pay_problems(PostingFeatures.model_validate(features(**overrides)), ROSSMANN)
+
+
+def test_pay_accepts_german_number_formats():
+    assert check_pay() == []
 
     monthly = PostingFeatures.model_validate(
         features(pay_min=2500, pay_max=2500, pay_period="month", pay_evidence="ab 2.500 € brutto")
     )
-    assert grounding_problems(monthly, "Gehalt ab 2.500 €   brutto im Monat") == []
+    assert pay_problems(monthly, "Gehalt ab 2.500 €   brutto im Monat") == []
 
 
-def test_grounding_catches_invented_figures_and_quotes():
-    invented = PostingFeatures.model_validate(features(pay_max=21.0))
-    assert grounding_problems(invented, ROSSMANN) == ["pay figure 21 not in evidence"]
+def test_pay_quote_may_span_bullet_lines():
+    text = "Vergütung\n• 1. Ausbildungsjahr: 1.100,00 € im Monat\n• 3. Ausbildungsjahr: 1.390,00 €"
+    f = PostingFeatures.model_validate(
+        features(
+            pay_min=1100,
+            pay_max=1390,
+            pay_period="month",
+            pay_evidence="1. Ausbildungsjahr: 1.100,00 € im Monat 3. Ausbildungsjahr: 1.390,00 €",
+        )
+    )
+    assert pay_problems(f, text) == []
 
-    paraphrased = PostingFeatures.model_validate(features(pay_evidence="15,00 bis 19,83 Euro"))
-    assert "pay_evidence is not a verbatim quote" in grounding_problems(paraphrased, ROSSMANN)
+
+@pytest.mark.parametrize(
+    ("overrides", "problem"),
+    [
+        ({"pay_max": 21.0}, "pay figure 21 not in evidence"),
+        ({"pay_evidence": "15,00 bis 19,83 Euro"}, "pay_evidence is not a verbatim quote"),
+        ({"pay_evidence": None}, "pay figures need a period and evidence"),
+        ({"pay_period": None}, "pay figures need a period and evidence"),
+        ({"pay_min": 6.5, "pay_max": 6.5}, "pay [6.5, 6.5] implausible per hour"),
+        ({"pay_min": 30.0, "pay_max": 20.0}, "pay_min is above pay_max"),
+    ],
+)
+def test_pay_problems(overrides, problem):
+    assert problem in check_pay(**overrides)
 
 
 def test_posting_cannot_close_its_wrapper():
@@ -118,7 +140,11 @@ def test_judge_outcomes():
     assert runner.judge(message(features(), "refusal"), ROSSMANN).reason == "refusal"
     assert runner.judge(message(features(), "max_tokens"), ROSSMANN).reason == "truncated"
     assert runner.judge(message("{not json"), ROSSMANN).reason.startswith("invalid")
-    assert runner.judge(message(features(pay_max=25.0)), ROSSMANN).reason.startswith("ungrounded")
+
+    # bad pay costs the pay fields, not the row
+    partial = runner.judge(message(features(pay_max=25.0)), ROSSMANN)
+    assert partial.reason is None and partial.pay_rejected == "pay figure 25 not in evidence"
+    assert partial.features.pay_max is None and partial.features.contract == "permanent"
 
 
 class FakeBatches:
@@ -172,14 +198,14 @@ def seed_texts(wh: Warehouse, texts: dict[str, str]) -> None:
 def test_batch_lifecycle_retries_once_then_parks(warehouse):
     seed_texts(warehouse, {"good": ROSSMANN, "bad": ROSSMANN, "flaky": ROSSMANN})
     batches = FakeBatches(
-        {"good": message(features()), "bad": message(features(pay_max=21.0)), "flaky": "expired"}
+        {"good": message(features()), "bad": message("{not json"), "flaky": "expired"}
     )
     client = SimpleNamespace(messages=SimpleNamespace(batches=batches))
 
     assert runner.submit(client, warehouse, limit=10) == "batch_1"
     assert runner.submit(client, warehouse, limit=10) is None  # all in flight
     summary = runner.collect(client, warehouse)["batch_1"]
-    assert summary == {"ok": 1, "ungrounded": 1, "api: expired": 1}
+    assert summary == {"ok": 1, "invalid": 1, "api: expired": 1}
 
     current = warehouse.query("SELECT refnr, pay_max FROM posting_features_current")
     assert current.to_dict("records") == [{"refnr": "r0", "pay_max": 19.83}]

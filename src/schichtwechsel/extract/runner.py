@@ -1,8 +1,8 @@
 """Batch extraction: submit pending texts, collect results, keep failures.
 
 A text counts as done once it has a row in posting_features for the
-current extractor version. Model-side failures (invalid output, failed
-checks, refusals) are retried once, then stay in extraction_failures.
+current extractor version. Model-side failures (invalid output, refusals,
+truncation) are retried once, then stay in extraction_failures.
 API-side failures (errored, expired, canceled requests) do not use up an
 attempt.
 """
@@ -21,11 +21,11 @@ from anthropic.types.messages.batch_create_params import Request
 from pydantic import ValidationError
 
 from schichtwechsel.extract.prompt import SYSTEM, user_message
-from schichtwechsel.extract.schema import PostingFeatures, grounding_problems
+from schichtwechsel.extract.schema import PostingFeatures, pay_problems
 from schichtwechsel.storage import Warehouse
 
 # bump when the model, the prompt or the schema changes
-EXTRACTOR_VERSION = "2026-10-25"
+EXTRACTOR_VERSION = "2026-10-25.3"
 MODEL = "claude-haiku-5-5"
 MAX_ATTEMPTS = 2
 MAX_CHARS = 40_000
@@ -41,6 +41,7 @@ class Outcome:
     raw: str | None
     input_tokens: int = 0
     output_tokens: int = 0
+    pay_rejected: str | None = None
 
 
 def request_params(text: str) -> dict[str, Any]:
@@ -75,9 +76,11 @@ def judge(message: Any, text: str) -> Outcome:
         where = ".".join(str(p) for p in first["loc"]) or "root"
         return Outcome(None, f"invalid: {where}: {first['msg']}", raw, **tokens)
 
-    problems = grounding_problems(features, text)
+    problems = pay_problems(features, text)
     if problems:
-        return Outcome(None, "ungrounded: " + "; ".join(problems), raw, **tokens)
+        return Outcome(
+            features.without_pay(), None, raw, **tokens, pay_rejected="; ".join(problems)
+        )
     return Outcome(features, None, raw, **tokens)
 
 
@@ -89,6 +92,7 @@ def _feature_row(text_hash: str, outcome: Outcome) -> dict[str, Any]:
         **outcome.features.model_dump(mode="json"),
         "input_tokens": outcome.input_tokens,
         "output_tokens": outcome.output_tokens,
+        "pay_rejected": outcome.pay_rejected,
     }
 
 

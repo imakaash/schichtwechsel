@@ -169,13 +169,14 @@ def _guide(ws) -> None:
         "Codes",
         "role_family: store_sales (Verkauf, Kasse, Warenverräumung), store_management "
         "(Filialleitung, Stellvertretung), logistics, head_office, technical, driving, other",
-        "track: apprenticeship (Ausbildung), dual_study, internship, seasonal_temp (Aushilfe), "
-        "regular",
+        "track: apprenticeship (Ausbildung), dual_study, internship, side_job (Aushilfe, "
+        "Studentenjob, Minijob), seasonal_temp (Weihnachtsaushilfe), regular",
         "entry_requirement: none (Quereinsteiger willkommen), vocational (Ausbildung erwartet), "
         "degree",
         "pay_min / pay_max: Grundlohn in Euro, keine Zulagen oder Zuschläge",
-        "tariff: above_tariff (übertariflich), tariff (nach Tarif)",
-        "german_level: basic, good, fluent",
+        "tariff: above_tariff (übertariflich), tariff (nach Tarif, Tarifregelungen)",
+        "contract: fixed_term auch bei Hinweis auf die Dauer der Befristung",
+        "german_level: basic, good, fluent (auch: beherrscht die deutsche Sprache)",
     ]
     ws.column_dimensions["A"].width = 120
     for i, line in enumerate(lines, 1):

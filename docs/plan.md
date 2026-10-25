@@ -13,7 +13,7 @@ Status as of 2026-10-25. Steps 2 to 7 take roughly five weeks part-time; steps 4
 
 ## 2. LLM extraction with guardrails (in progress)
 
-Done: details fetch with text dedupe, schema, prompt, batch submit and collect, plausibility and pay grounding checks, retry and failure tracking, ADRs 0006 and 0007. Open: first live batch, labelled test set and accuracy per field.
+Done: details fetch with text dedupe, schema, prompt, batch submit and collect, plausibility and pay grounding checks, retry and failure tracking, 50 hand labels, extractor v3 (ADRs 0006 to 0008). Open: label a fresh holdout set of about 30 postings and report final accuracy on it; then the full backfill.
 
 1. Fetch the full posting text from the details endpoint, only for postings not seen before.
 2. Pydantic schema for the extracted fields: role family, weekly hours, contract type, pay range and unit, benefits as fixed codes (staff discount, holiday pay, bike leasing, company pension, ...), Ausbildung vs. experienced hire vs. career changer, required language level.
