@@ -434,8 +434,18 @@ class Simulation:
             "stores": self.stores,
             "employees": employees,
             "employee_months": pd.DataFrame(self.rows),
-            "requisitions": pd.DataFrame(self.requisitions),
+            "requisitions": _hide_future(pd.DataFrame(self.requisitions)),
         }
+
+
+def _hide_future(reqs: pd.DataFrame) -> pd.DataFrame:
+    """An opening filled after the data ends is still open as far as the HR system knows."""
+    cutoff = add_months(END, 1)
+    still_open = pd.to_datetime(reqs["filled_on"]) >= pd.Timestamp(cutoff)
+    reqs = reqs.copy()
+    reqs["status"] = np.where(still_open, "open", "filled")
+    reqs.loc[still_open, ["filled_on", "days_to_fill"]] = None
+    return reqs
 
 
 def truth() -> dict[str, float | dict]:

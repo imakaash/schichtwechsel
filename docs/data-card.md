@@ -44,7 +44,7 @@ Months run from 2023-01 to 2026-09.
 4. Voluntary exit with a monthly probability from the drivers below.
 5. Involuntary exit, 0.3% a month.
 
-Every exit except an apprentice's opens a requisition. The new hire starts the month after it is filled, and until then the open slot raises the store's vacancy rate. A new apprentice cohort starts every August.
+Every exit except an apprentice's opens a requisition. Openings filled after the data ends are stored as still open, without a fill date, as an HR system would show them. The new hire starts the month after it is filled, and until then the open slot raises the store's vacancy rate. A new apprentice cohort starts every August.
 
 ## True drivers of voluntary exit
 

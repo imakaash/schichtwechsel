@@ -29,6 +29,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 from schichtwechsel.hris.generate import Drivers
+from schichtwechsel.models.common import store_metrics
 
 # Settings are fixed in advance, not tuned, so there is no separate
 # validation period: train on everything before TEST_START, test after.
@@ -330,5 +331,5 @@ def save(wh, result: Result, tables: dict[str, pd.DataFrame]) -> None:
         for name in ("logistic", "boosting", "oracle", "three_month")
         for metric, value in getattr(result, name).items()
     ]
-    wh.replace_table("hris.model_metrics", pd.DataFrame(rows))
+    store_metrics(wh, "attrition", rows)
     wh.refresh_views()

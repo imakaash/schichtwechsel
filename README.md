@@ -15,7 +15,7 @@ Hiring and workforce intelligence for German drugstore retail.
 | Daily snapshot of competitor job postings (BA Jobsuche) | working |
 | Structured extraction from posting text with Claude | working, backfill pending |
 | Analytics views: hiring pressure, pay, benefits, data quality | working |
-| Synthetic HR data, attrition and time-to-fill models | planned |
+| Synthetic HR data, attrition and time-to-fill models | working |
 | Analyst agent with guardrails, DE/EN | planned |
 | Web app and Azure deployment | planned |
 
@@ -49,7 +49,13 @@ sw extract one <refnr>           # one posting, sent directly, for prompt work
 sw labels score --name holdout   # extraction accuracy on hand labels
 sw check                         # data quality; exits 1 if a competitor dropped or vanished
 sw show hiring_pressure          # print any view in the mart schema
+
+sw hris generate                 # synthetic HR data for a fictional chain
+sw models attrition              # monthly attrition hazard, 3-month risk
+sw models time-to-fill           # days to fill an opening, median and P80
 ```
+
+The HR data is synthetic; see `docs/data-card.md` and the model cards in `docs/`.
 
 Extraction needs an Anthropic API key: copy `.env.example` to `.env` and fill it in.
 

@@ -22,6 +22,7 @@ SELECT
     region,
     role,
     count(*)                                              AS openings,
+    count(*) FILTER (WHERE status = 'open')               AS still_open,
     median(days_to_fill)                                  AS median_days_to_fill,
     quantile_cont(days_to_fill, 0.8)                      AS p80_days_to_fill,
     median(applicants)                                    AS median_applicants

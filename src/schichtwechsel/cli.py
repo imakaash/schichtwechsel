@@ -324,6 +324,32 @@ def models_attrition() -> None:
     console.print(tables["attrition_age_check"].to_string(index=False))
 
 
+@models_app.command("time-to-fill")
+def models_time_to_fill() -> None:
+    """Train and test the time-to-fill model and store the regional outlook."""
+    from schichtwechsel.models.time_to_fill import save, train
+
+    with Warehouse() as wh:
+        result, tables = train(wh)
+        save(wh, result, tables)
+
+    table = Table(title=f"Time to fill, test {result.test}", title_justify="left")
+    for col in ("model", "median error", "mean error", "R² log days", "P80 coverage"):
+        table.add_column(col, justify="left" if col == "model" else "right")
+    for name in ("linear", "boosting", "oracle"):
+        m = getattr(result, name)
+        table.add_row(
+            "ceiling (true drivers)" if name == "oracle" else name,
+            f"{m['median_abs_error_days']:.1f} d",
+            f"{m['mean_abs_error_days']:.1f} d",
+            f"{m['r2_log_days']:.3f}",
+            f"{m['p80_coverage']:.0%}",
+        )
+    console.print(table)
+    console.rule("True vs estimated effects on log days")
+    console.print(tables["time_to_fill_effects"].to_string(index=False))
+
+
 labels_app = typer.Typer(no_args_is_help=True, help="Hand labels and extraction accuracy.")
 app.add_typer(labels_app, name="labels")
 LABELS_DIR = ROOT / "labels"

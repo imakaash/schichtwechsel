@@ -45,7 +45,9 @@ def test_exits_open_requisitions_except_apprentices(data):
     months = data["employee_months"]
     exits = months[months["exit_type"].notna() & (months["contract_type"] != "apprentice")]
     assert len(exits) == len(data["requisitions"])
-    assert (data["requisitions"]["days_to_fill"] >= 3).all()
+    reqs = data["requisitions"]
+    assert (reqs.loc[reqs["status"] == "filled", "days_to_fill"] >= 3).all()
+    assert reqs.loc[reqs["status"] == "open", "filled_on"].isna().all()
 
 
 def test_competitor_pressure_raises_attrition():

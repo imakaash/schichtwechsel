@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import gzip
 import json
+import logging
 from datetime import date
 from importlib import resources
 from pathlib import Path
@@ -11,6 +12,8 @@ import duckdb
 import pandas as pd
 
 from schichtwechsel.config import RAW_DIR, REFERENCE_DIR, WAREHOUSE, load_config
+
+log = logging.getLogger(__name__)
 
 
 def write_raw(items: list[dict[str, Any]], *, day: date, name: str, root: Path = RAW_DIR) -> Path:
@@ -38,6 +41,7 @@ class Warehouse:
     OPTIONAL_VIEWS = {
         "mart_hris.sql": ("hris.employee_months", "hris.requisitions"),
         "mart_models.sql": ("hris.attrition_scores", "hris.model_metrics"),
+        "mart_time_to_fill.sql": ("hris.time_to_fill_outlook",),
     }
 
     def refresh_views(self) -> None:
@@ -49,8 +53,14 @@ class Warehouse:
         existing = {row[0] for row in existing}
         sql = resources.files("schichtwechsel.sql")
         for name, needs in self.OPTIONAL_VIEWS.items():
-            if all(t in existing for t in needs):
+            if not all(t in existing for t in needs):
+                continue
+            try:
                 self.con.execute(sql.joinpath(name).read_text("utf-8"))
+            except duckdb.BinderException as exc:
+                # tables from an older run; regenerating them fixes this
+                first_line = str(exc).splitlines()[0]
+                log.warning("skipped %s, tables are out of date: %s", name, first_line)
 
     def _load_reference(self) -> None:
         """Small lookup tables, reloaded on every open so edits to the CSVs apply at once."""
@@ -132,5 +142,6 @@ class Warehouse:
         return self.con.execute(sql, params or []).df()
 
     def scalar(self, sql: str, params: list[Any] | None = None) -> Any:
-        row = self.con.execute(sql, params or []).fetchone()
-        return row[0] if row else None
+        # fetchall, not fetchone: DuckDB keeps a partly read result open and blocks the connection
+        rows = self.con.execute(sql, params or []).fetchall()
+        return rows[0][0] if rows else None
