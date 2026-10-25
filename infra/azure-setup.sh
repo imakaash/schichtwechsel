@@ -2,8 +2,8 @@
 # One-time Azure setup for Schichtwechsel. Safe to re-run.
 #
 # Needs: az (logged in with `az login`), gh (logged in), and these variables:
-#   GHCR_PAT       GitHub token with read:packages, so Azure can pull the image
 #   ACCESS_CODE    code that unlocks the analyst page in the public UI
+#   GHCR_PAT       only if the image is private: GitHub token with read:packages
 # ANTHROPIC_API_KEY is read from .env if not set.
 #
 # Creates: resource group, Container Apps environment (logs off, no Log
@@ -18,7 +18,6 @@ REPO="$(gh repo view --json nameWithOwner -q .nameWithOwner)"
 OWNER="${REPO%%/*}"
 IMAGE="ghcr.io/$(echo "$REPO" | tr "[:upper:]" "[:lower:]"):latest"
 
-: "${GHCR_PAT:?set GHCR_PAT (GitHub token with read:packages)}"
 : "${ACCESS_CODE:?set ACCESS_CODE (unlocks the analyst page)}"
 if [[ -z "${ANTHROPIC_API_KEY:-}" && -f .env ]]; then
   ANTHROPIC_API_KEY="$(grep -E '^ANTHROPIC_API_KEY=' .env | cut -d= -f2-)"
@@ -38,11 +37,15 @@ if ! az containerapp env show --name "$ENV_NAME" --resource-group "$RG" &>/dev/n
     --logs-destination none --output none
 fi
 
-registry=(--registry-server ghcr.io --registry-username "$OWNER" --registry-password "$GHCR_PAT")
+# a public image needs no credentials; a private one needs GHCR_PAT
+registry=()
+if [[ -n "${GHCR_PAT:-}" ]]; then
+  registry=(--registry-server ghcr.io --registry-username "$OWNER" --registry-password "$GHCR_PAT")
+fi
 
 if ! az containerapp show --name sw-api --resource-group "$RG" &>/dev/null; then
   az containerapp create --name sw-api --resource-group "$RG" --environment "$ENV_NAME" \
-    --image "$IMAGE" "${registry[@]}" \
+    --image "$IMAGE" ${registry[@]+"${registry[@]}"} \
     --ingress internal --target-port 8000 \
     --min-replicas 0 --max-replicas 1 --cpu 0.5 --memory 1.0Gi \
     --secrets "anthropic-key=$ANTHROPIC_API_KEY" \
@@ -52,7 +55,7 @@ fi
 
 if ! az containerapp show --name sw-ui --resource-group "$RG" &>/dev/null; then
   az containerapp create --name sw-ui --resource-group "$RG" --environment "$ENV_NAME" \
-    --image "$IMAGE" "${registry[@]}" \
+    --image "$IMAGE" ${registry[@]+"${registry[@]}"} \
     --ingress external --target-port 8501 \
     --min-replicas 0 --max-replicas 1 --cpu 0.5 --memory 1.0Gi \
     --command streamlit \

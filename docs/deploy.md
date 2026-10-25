@@ -6,12 +6,12 @@ The app runs on Azure Container Apps: an internal API container and a public UI 
 
 1. **Azure account.** A free standard account or Azure for Students is enough. The Container Apps free grant covers this app at low traffic. Student subscriptions restrict regions by policy (check with `az policy assignment list`); the script defaults to `francecentral`, which is allowed there and offers Container Apps. Override with `LOCATION=...`.
 2. **Azure CLI.** `brew install azure-cli`, then `az login`.
-3. **GitHub token for the image.** The image lives in the GitHub Container Registry next to the private repo, so Azure needs a token to pull it. Create a classic token at github.com/settings/tokens with only the `read:packages` scope.
+3. **GitHub token, only for a private image.** With a public repository the image is public and Azure pulls it without credentials. For a private one, create a classic token at github.com/settings/tokens with only the `read:packages` scope and pass it as `GHCR_PAT`.
 4. **First image.** Run the daily workflow once (Actions > daily > Run workflow). Without Azure variables it builds and pushes the image and skips the deploy.
 5. **Azure resources.** From the repo root:
 
    ```bash
-   GHCR_PAT=<token from step 3> ACCESS_CODE=<code for the analyst page> ./infra/azure-setup.sh
+   ACCESS_CODE=<code for the analyst page> ./infra/azure-setup.sh
    ```
 
    It creates the resource group, the Container Apps environment, both apps and the OIDC trust, and sets the GitHub variables the workflow needs. It prints the public URL.
