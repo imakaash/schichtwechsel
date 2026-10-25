@@ -1,44 +1,54 @@
 # Deployment
 
-The app runs on Azure Container Apps: an internal API container and a public UI container from the same image, both scaling to zero. A daily GitHub Actions job refreshes the data, rebuilds the image and deploys it. See ADR 0012 for the reasoning.
+The web app runs on Streamlit Community Cloud at **https://schichtwechsel.streamlit.app**, free. A daily GitHub Actions job refreshes the data; the app downloads it by itself. See ADR 0013 for the reasoning, and ADR 0012 for the earlier Azure setup.
 
-## One-time setup
+## How it fits together
 
-1. **Azure account.** A free standard account or Azure for Students is enough. The Container Apps free grant covers this app at low traffic. Student subscriptions restrict regions by policy (check with `az policy assignment list`); the script defaults to `francecentral`, which is allowed there and offers Container Apps. Override with `LOCATION=...`.
-2. **Azure CLI.** `brew install azure-cli`, then `az login`.
-3. **GitHub token, only for a private image.** With a public repository the image is public and Azure pulls it without credentials. For a private one, create a classic token at github.com/settings/tokens with only the `read:packages` scope and pass it as `GHCR_PAT`.
-4. **First image.** Run the daily workflow once (Actions > daily > Run workflow). Without Azure variables it builds and pushes the image and skips the deploy.
-5. **Azure resources.** From the repo root:
+- **Data.** The warehouse (DuckDB, about 25 MB) lives in the GitHub release `data`. The daily job downloads it, adds today's postings and extraction results, checks quality and uploads it again.
+- **App.** Entry point `app/streamlit_app.py`, dependencies `app/requirements.txt`. On first start the app downloads the warehouse from the release and refreshes it every six hours. Dashboards and the analyst run in the same process; there is no separate API.
+- **Optional API.** `src/schichtwechsel/agent/api.py` serves the same data and analyst over HTTP for local use or other clients. The web app does not need it.
 
-   ```bash
-   ACCESS_CODE=<code for the analyst page> ./infra/azure-setup.sh
+## One-time setup on Streamlit Community Cloud
+
+1. Sign in at share.streamlit.io with GitHub.
+2. Create app > from a GitHub repository:
+   - Repository `imakaash/schichtwechsel`, branch `main`
+   - Main file path `app/streamlit_app.py`
+   - App URL `schichtwechsel` (gives schichtwechsel.streamlit.app if free)
+3. Advanced settings: Python 3.12, and in Secrets:
+
+   ```toml
+   ANTHROPIC_API_KEY = "sk-ant-..."
+   SW_ACCESS_CODE = "your-code"
    ```
 
-   It creates the resource group, the Container Apps environment, both apps and the OIDC trust, and sets the GitHub variables the workflow needs. It prints the public URL.
+4. Deploy. The first start takes a few minutes (dependencies, then the data download).
 
-From then on, the daily workflow deploys every morning.
+Every push to `main` redeploys the app. To change a secret, edit it in the app's settings; the app restarts.
 
 ## Secrets
 
 | Where | Name | Purpose |
 |---|---|---|
 | GitHub secret | `ANTHROPIC_API_KEY` | extraction in the daily job, weekly evals |
-| Container App `sw-api` secret | `anthropic-key` | the analyst agent |
-| Container App `sw-ui` secret | `access-code` | unlocks the analyst page |
-| Both container apps, secret | `api-token` | UI to API authentication for the session endpoints |
-| GitHub variables | `AZURE_*` | OIDC login, no password stored |
+| Streamlit secrets | `ANTHROPIC_API_KEY` | the analyst |
+| Streamlit secrets | `SW_ACCESS_CODE` | unlocks the analyst page |
+| Streamlit secrets, optional | `SW_DAILY_BUDGET_USD`, `SW_MAX_QUESTIONS` | change the caps (defaults 2 USD and 30) |
 
 ## Cost guards
 
-- The API's session endpoints (the ones that spend API credit) require a shared token, `SW_API_TOKEN`, which only the UI has. The setup script generates it. This does not rely on the network: the environment Azure created is an *express* environment, where the API answered from the internet even with `external: false` ingress and plain HTTP is not offered. The UI therefore calls the API at its HTTPS address, and the token is what protects it.
-
-- The API refuses new questions once the day's spend reaches `SW_DAILY_BUDGET_USD` (2 USD) and caps a conversation at `SW_MAX_QUESTIONS` (30). Both reset when the container restarts.
 - The analyst page is locked behind the access code; the dashboards are public.
-- Both apps scale to zero; the first request after a pause takes a few seconds longer.
+- The app refuses new questions once the day's spend reaches the budget and caps a conversation at 30 questions. Both counters reset when the app restarts.
+
+## Limits
+
+- The app sleeps after about 12 hours without visitors; the next visitor wakes it, which takes about half a minute.
+- Community Cloud gives roughly 1 GB of memory, enough for this data.
 
 ## Running locally
 
 ```bash
-uvicorn schichtwechsel.agent.api:app --port 8000
-streamlit run src/schichtwechsel/ui/app.py
+streamlit run app/streamlit_app.py
 ```
+
+Uses `data/warehouse.duckdb` if it exists (never overwritten), otherwise downloads it. The key comes from `.env`.

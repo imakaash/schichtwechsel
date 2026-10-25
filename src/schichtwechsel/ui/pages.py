@@ -3,13 +3,12 @@
 from __future__ import annotations
 
 import hmac
-import os
 
 import pandas as pd
 import streamlit as st
 
 from schichtwechsel.ui import charts
-from schichtwechsel.ui.client import LimitReached, ask, dataset, new_session
+from schichtwechsel.ui.backend import LimitReached, ask, dataset, new_conversation, secret
 from schichtwechsel.ui.i18n import label, lang, number, percent, t
 
 AVATAR = {"user": ":material/person:", "assistant": ":material/query_stats:"}
@@ -273,7 +272,7 @@ def workforce() -> None:
 
 def unlocked() -> bool:
     """The assistant spends API credit, so a public deployment asks for an access code."""
-    code = os.environ.get("SW_ACCESS_CODE")
+    code = secret("SW_ACCESS_CODE")
     if not code or st.session_state.get("unlocked"):
         return True
     st.info(t("assistant.locked"))
@@ -296,7 +295,7 @@ def assistant() -> None:
     state.setdefault("chat", [])
 
     if st.button(t("assistant.new"), type="tertiary"):
-        state.chat, state.session_id = [], None
+        state.chat, state.conversation = [], None
 
     for turn in state.chat:
         with st.chat_message(turn["role"], avatar=AVATAR[turn["role"]]):
@@ -323,13 +322,9 @@ def assistant() -> None:
         st.spinner(t("assistant.working")),
     ):
         try:
-            if not state.get("session_id"):
-                state.session_id = new_session()
-            try:
-                answer = ask(state.session_id, question, lang())
-            except KeyError:  # expired on the server
-                state.session_id = new_session()
-                answer = ask(state.session_id, question, lang())
+            if not state.get("conversation"):
+                state.conversation = new_conversation()
+            answer = ask(state.conversation, question, lang())
         except LimitReached:
             st.warning(t("assistant.limit"))
             return

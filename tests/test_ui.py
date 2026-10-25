@@ -82,9 +82,11 @@ def test_pages_run(monkeypatch, page, lang):
     assert app.title[0].value
 
 
-def test_shell_runs_without_api():
+def test_cloud_entry_point_runs():
     from streamlit.testing.v1 import AppTest
 
-    app = AppTest.from_file(APP, default_timeout=60)
+    app = AppTest.from_file(str(ROOT / "app/streamlit_app.py"), default_timeout=60)
     app.run()
     assert not app.exception, app.exception
+    if WAREHOUSE.exists():
+        assert app.title[0].value

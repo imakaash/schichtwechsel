@@ -4,7 +4,7 @@
   "tagline": "Wettbewerb und Belegschaft im Drogeriehandel",
   "language": "Sprache",
   "footer": "Unabhängiges Portfolioprojekt. Stellendaten: Bundesagentur für Arbeit. Die Personaldaten sind synthetisch und beschreiben ein fiktives Unternehmen.",
-  "api_down": "Die Daten-API ist nicht erreichbar. Läuft sie unter {url}?"
+  "data_down": "Die Daten konnten nicht geladen werden ({error}). Bitte später erneut versuchen."
  },
  "nav": {
   "radar": "Wettbewerb",

@@ -1,7 +1,8 @@
 name: daily
 
 # Pull today's postings, fetch new texts, collect yesterday's extraction batch
-# and submit today's, check data quality, then rebuild and deploy the app.
+# and submit today's, save the data, check its quality. The web app on
+# Streamlit Community Cloud downloads the saved warehouse by itself.
 on:
   schedule:
     - cron: "30 4 * * *"
@@ -11,11 +12,6 @@ concurrency: daily
 
 permissions:
   contents: write
-  packages: write
-  id-token: write
-
-env:
-  IMAGE: ghcr.io/${{ github.repository }}
 
 jobs:
   refresh:
@@ -45,46 +41,5 @@ jobs:
           tar czf "raw-$(date +%F).tar.gz" data/raw
           gh release upload data data/warehouse.duckdb raw-*.tar.gz --clobber
 
-      # a failed check stops here: data is saved, but nothing is deployed
+      # runs after saving, so a failed check keeps the data but fails the job
       - run: sw check
-
-      - uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ github.token }}
-      - name: Build and push
-        id: build
-        run: |
-          tag="$(date +%F)-${GITHUB_SHA::7}"
-          docker build -t "$IMAGE:$tag" -t "$IMAGE:latest" .
-          docker push --all-tags "$IMAGE"
-          echo "tag=$tag" >> "$GITHUB_OUTPUT"
-      - name: Smoke test
-        run: |
-          docker run -d --name api -p 8000:8000 "$IMAGE:${{ steps.build.outputs.tag }}"
-          # the port answers before uvicorn listens; wait for a real response
-          for i in $(seq 1 30); do
-            curl -fsS localhost:8000/health && break
-            sleep 2
-          done
-          curl -fsS localhost:8000/health
-          curl -fsS localhost:8000/data/meta
-      - name: Container logs
-        if: failure()
-        run: docker logs api || true
-
-      - name: Azure login
-        if: vars.AZURE_CLIENT_ID != ''
-        uses: azure/login@v2
-        with:
-          client-id: ${{ vars.AZURE_CLIENT_ID }}
-          tenant-id: ${{ vars.AZURE_TENANT_ID }}
-          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-      - name: Deploy
-        if: vars.AZURE_CLIENT_ID != ''
-        run: |
-          for app in sw-api sw-ui; do
-            az containerapp update --name "$app" --resource-group "${{ vars.AZURE_RESOURCE_GROUP }}" \
-              --image "$IMAGE:${{ steps.build.outputs.tag }}" --output none
-          done

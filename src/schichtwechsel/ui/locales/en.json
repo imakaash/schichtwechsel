@@ -4,7 +4,7 @@
   "tagline": "Competition and workforce in drugstore retail",
   "language": "Language",
   "footer": "Independent portfolio project. Job data: Bundesagentur für Arbeit. The HR data is synthetic and describes a fictional company.",
-  "api_down": "The data API cannot be reached. Is it running at {url}?"
+  "data_down": "The data could not be loaded ({error}). Please try again later."
  },
  "nav": {
   "radar": "Competition",

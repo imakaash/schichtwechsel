@@ -17,7 +17,7 @@ Hiring and workforce intelligence for German drugstore retail.
 | Analytics views: hiring pressure, pay, benefits, data quality | working |
 | Synthetic HR data, attrition and time-to-fill models | working |
 | Analyst agent with guardrails, DE/EN | working, 40/40 golden questions |
-| Web app (DE/EN) and Azure deployment | live, updated daily |
+| Web app (DE/EN) on Streamlit Community Cloud | live, data updated daily |
 
 ## Setup
 
@@ -67,11 +67,11 @@ uvicorn schichtwechsel.agent.api:app --port 8000   # HTTP API for the UI
 The agent's guardrails are described in `docs/adr/0011-analyst-agent.md`.
 
 ```bash
-uvicorn schichtwechsel.agent.api:app --port 8000       # API
-streamlit run src/schichtwechsel/ui/app.py              # web UI, German and English
+streamlit run app/streamlit_app.py                      # web app, German and English
+uvicorn schichtwechsel.agent.api:app --port 8000        # optional HTTP API
 ```
 
-Deployment to Azure Container Apps is described in `docs/deploy.md`, the visual design in `docs/design.md`.
+Live at https://schichtwechsel.streamlit.app. Hosting is described in `docs/deploy.md`, the visual design in `docs/design.md`.
 
 Extraction needs an Anthropic API key: copy `.env.example` to `.env` and fill it in.
 

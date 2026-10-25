@@ -54,16 +54,16 @@ Done: tool loop, SQL guard, read-only connection, grounding and language checks,
 4. About 40 golden questions in German and English, checking numbers, refusals and language. Runs in CI.
 5. Logging of tool calls, tokens and cost per question.
 
-## 6. UI, deployment and automation (done, ADR 0012)
+## 6. UI, deployment and automation (done, ADR 0012 and 0013)
 
-Done: Streamlit UI with four pages in German and English, own palette and type (docs/design.md), Dockerfile, CI, daily and eval workflows, Azure setup script, cost guards. Live since 2026-10-25 on Azure Container Apps (France Central), deployed daily by GitHub Actions.
+Done: Streamlit UI with four pages in German and English, own palette and type (docs/design.md), CI, daily and eval workflows, cost guards. Ran on Azure Container Apps on 2026-10-25 (ADR 0012), then moved to Streamlit Community Cloud to remove hosting cost (ADR 0013).
 
 1. Streamlit UI in its own container. UI text in `de.json` and `en.json`, data in canonical codes. Pages: competitor radar (map and trends), benefits comparison, workforce risk, agent chat.
 2. Own palette and typography, no default theme.
-3. Docker images for API and UI, pushed to GitHub Container Registry.
-4. Azure Container Apps with scale to zero, API key as a secret.
-5. GitHub Actions: daily cron for snapshot, incremental extraction and data upload; a second workflow for tests, evals and deploy.
-6. DuckDB/Parquet data in Azure Blob Storage or a mounted file share, inside the free tier.
+3. Hosting on Streamlit Community Cloud; the app downloads the warehouse from the `data` release.
+4. Secrets (API key, access code) in Streamlit's secrets store.
+5. GitHub Actions: daily cron for snapshot, incremental extraction and data upload; CI on every push; weekly evals.
+6. Data state in a GitHub release, replaced daily.
 
 ## 7. Presentation
 
@@ -76,4 +76,3 @@ Done: Streamlit UI with four pages in German and English, own palette and type (
 
 - Below Bundesland level (district or 50 km radius) for questions like "Raum Karlsruhe". Coordinates are already stored.
 - Müller coverage: accept and document the gap, or add a small compliant check of its career site. Current lean: accept the gap.
-- Azure account type: standard free account or Azure for Students.

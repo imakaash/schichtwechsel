@@ -1,4 +1,7 @@
-"""HTTP API for the analyst agent.
+"""Optional HTTP API for the analyst agent and the dashboard data.
+
+The web app does not need it (it calls the same code in-process); it is
+here for other clients and local use.
 
     uvicorn schichtwechsel.agent.api:app --port 8000
 
@@ -13,7 +16,6 @@ import os
 import threading
 import time
 from dataclasses import asdict
-from datetime import date
 from typing import Literal
 
 from fastapi import Depends, FastAPI, Header, HTTPException
@@ -21,13 +23,11 @@ from pydantic import BaseModel, Field
 
 from schichtwechsel.agent.dashboard import QUERIES
 from schichtwechsel.agent.executor import VIEW_NOTES, ReadOnlyMart
+from schichtwechsel.agent.limits import LimitReached, SpendLimiter
 from schichtwechsel.agent.loop import MODEL, Session
 
 IDLE_SECONDS = 3600
 MAX_SESSIONS = 50
-# The UI is public; these cap what anyone can spend of the API key.
-DAILY_BUDGET_USD = float(os.environ.get("SW_DAILY_BUDGET_USD", "2.0"))
-MAX_QUESTIONS = int(os.environ.get("SW_MAX_QUESTIONS", "30"))
 # Shared secret between UI and API for the endpoints that spend API credit.
 # Network rules alone are not relied on; unset means local development.
 API_TOKEN = os.environ.get("SW_API_TOKEN", "")
@@ -40,8 +40,7 @@ def require_token(x_sw_token: str = Header(default="")) -> None:
 
 app = FastAPI(title="Schichtwechsel analyst", version="0.1.0")
 _sessions: dict[str, tuple[Session, float]] = {}
-_spent: dict[date, float] = {}
-_asked: dict[str, int] = {}
+limiter = SpendLimiter()
 _lock = threading.Lock()
 _client = None
 
@@ -116,15 +115,13 @@ def ask(session_id: str, body: Question) -> dict:
         entry = _sessions.get(session_id)
         if entry is None:
             raise HTTPException(404, "unknown or expired session")
-        if _spent.get(date.today(), 0.0) >= DAILY_BUDGET_USD:
-            raise HTTPException(429, "daily budget used up")
-        if _asked.get(session_id, 0) >= MAX_QUESTIONS:
-            raise HTTPException(429, "question limit for this conversation reached")
         _sessions[session_id] = (entry[0], time.monotonic())
-        _asked[session_id] = _asked.get(session_id, 0) + 1
+    try:
+        limiter.admit(session_id)
+    except LimitReached as exc:
+        raise HTTPException(429, str(exc)) from exc
     answer = entry[0].ask(body.question, body.language)
-    with _lock:
-        _spent[date.today()] = _spent.get(date.today(), 0.0) + answer.cost_usd
+    limiter.record(answer.cost_usd)
     return asdict(answer)
 
 

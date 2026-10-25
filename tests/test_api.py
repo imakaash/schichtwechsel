@@ -53,8 +53,7 @@ def test_daily_budget_and_question_limit(monkeypatch):
         beta=SimpleNamespace(messages=SimpleNamespace(create=lambda **kw: reply))
     )
     monkeypatch.setattr(api, "client", lambda: fake)
-    monkeypatch.setattr(api, "DAILY_BUDGET_USD", 0.5)
-    monkeypatch.setattr(api, "_spent", {})
+    monkeypatch.setattr(api, "limiter", api.SpendLimiter(daily_budget_usd=0.5, max_questions=30))
     http = TestClient(api.app)
     sid = http.post("/sessions").json()["session_id"]
     ask = lambda: http.post(f"/sessions/{sid}/ask", json={"question": "Hallo"})  # noqa: E731
@@ -62,9 +61,10 @@ def test_daily_budget_and_question_limit(monkeypatch):
     assert ask().status_code == 200  # $0.60 now, over the budget
     assert ask().status_code == 429
 
-    monkeypatch.setattr(api, "_spent", {})
-    monkeypatch.setattr(api, "MAX_QUESTIONS", 2)
-    assert ask().status_code == 429  # this session already asked twice
+    monkeypatch.setattr(api, "limiter", api.SpendLimiter(daily_budget_usd=5, max_questions=2))
+    assert ask().status_code == 200
+    assert ask().status_code == 200
+    assert ask().status_code == 429  # third question in this conversation
 
 
 def test_session_endpoints_need_the_token(monkeypatch):

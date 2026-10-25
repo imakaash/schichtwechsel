@@ -1,7 +1,7 @@
 # 12. One image on Azure Container Apps, data baked in, state in a GitHub release
 
 Date: 2026-10-25
-Status: accepted
+Status: superseded by ADR 0013 (moved to Streamlit Community Cloud). Kept as a record of the Azure deployment that ran on 2026-10-25.
 
 ## Context
 
