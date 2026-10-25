@@ -20,7 +20,8 @@ IMAGE="ghcr.io/$(echo "$REPO" | tr "[:upper:]" "[:lower:]"):latest"
 
 : "${ACCESS_CODE:?set ACCESS_CODE (unlocks the analyst page)}"
 if [[ -z "${ANTHROPIC_API_KEY:-}" && -f .env ]]; then
-  ANTHROPIC_API_KEY="$(grep -E '^ANTHROPIC_API_KEY=' .env | cut -d= -f2-)"
+  # strip surrounding quotes, as python-dotenv does when the app reads .env
+  ANTHROPIC_API_KEY="$(grep -E '^ANTHROPIC_API_KEY=' .env | cut -d= -f2- | sed -E "s/^[\"']//; s/[\"']$//")"
 fi
 : "${ANTHROPIC_API_KEY:?set ANTHROPIC_API_KEY or put it in .env}"
 
