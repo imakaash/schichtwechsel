@@ -12,7 +12,7 @@
 set -euo pipefail
 
 RG="${RG:-schichtwechsel-rg}"
-LOCATION="${LOCATION:-germanywestcentral}"
+LOCATION="${LOCATION:-francecentral}"
 ENV_NAME="${ENV_NAME:-schichtwechsel-env}"
 REPO="$(gh repo view --json nameWithOwner -q .nameWithOwner)"
 OWNER="${REPO%%/*}"
