@@ -57,7 +57,7 @@ class Drivers:
     manager_change: float = 0.6  # store manager changed in the last 6 months
     understaffing: float = 2.5  # per unit of store vacancy rate
     pressure: float = 0.8  # per unit of log(pressure index / 100)
-    fixed_term_ending: float = 0.5  # fixed-term contract ends within 2 months
+    fixed_term_ending: float = 0.5  # contract ends in the next 1 or 2 months
     january: float = 0.3
     late_summer: float = 0.2  # August, September
     frailty_sd: float = 0.5  # unobserved, per person
@@ -379,7 +379,7 @@ class Simulation:
                 "age": month.year - e.birth_year,
                 "fixed_term": e.fixed_term_end is not None,
                 "fixed_term_ends_within_2m": e.fixed_term_end is not None
-                and 0 <= months_between(month, e.fixed_term_end) <= 2,
+                and 0 < months_between(month, e.fixed_term_end) <= 2,
                 "months_since_manager_change": None
                 if changed is None
                 else months_between(changed, month),
@@ -511,4 +511,5 @@ def generate(wh, seed: int = 2026, n_stores: int = 300) -> dict[str, int]:
     wh.con.execute("CREATE SCHEMA IF NOT EXISTS hris")
     for name, frame in tables.items():
         wh.replace_table(f"hris.{name}", frame)
+    wh.refresh_views()
     return {name: len(frame) for name, frame in tables.items()}

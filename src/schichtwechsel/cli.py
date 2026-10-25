@@ -290,6 +290,40 @@ def hris_generate(seed: int = 2026, stores: int = 300) -> None:
     console.print(", ".join(f"{n:,} {name}" for name, n in counts.items()))
 
 
+models_app = typer.Typer(no_args_is_help=True, help="Models on the synthetic HR data.")
+app.add_typer(models_app, name="models")
+
+
+@models_app.command("attrition")
+def models_attrition() -> None:
+    """Train and test the attrition model, score current staff, store the results."""
+    from schichtwechsel.models.attrition import save, train
+
+    with Warehouse() as wh:
+        result, tables = train(wh)
+        save(wh, result, tables)
+
+    table = Table(title=f"Attrition, test {result.test}", title_justify="left")
+    for col in ("model", "ROC AUC", "avg precision", "Brier", "predicted", "observed"):
+        table.add_column(col, justify="left" if col == "model" else "right")
+    for name in ("logistic", "boosting", "oracle", "three_month"):
+        m = getattr(result, name)
+        label = {"oracle": "ceiling (true drivers)", "three_month": "logistic, 3-month risk"}
+        table.add_row(
+            label.get(name, name),
+            f"{m['roc_auc']:.3f}",
+            f"{m['average_precision']:.3f}",
+            f"{m['brier']:.4f}",
+            f"{m['mean_predicted']:.2%}",
+            f"{m['observed_rate']:.2%}",
+        )
+    console.print(table)
+    console.rule("True vs estimated effects")
+    console.print(tables["attrition_effects"].to_string(index=False))
+    console.rule("Calibration by age band (age is not a model input)")
+    console.print(tables["attrition_age_check"].to_string(index=False))
+
+
 labels_app = typer.Typer(no_args_is_help=True, help="Hand labels and extraction accuracy.")
 app.add_typer(labels_app, name="labels")
 LABELS_DIR = ROOT / "labels"

@@ -32,6 +32,25 @@ class Warehouse:
         self.con.execute(sql.joinpath("schema.sql").read_text("utf-8"))
         self._load_reference()
         self.con.execute(sql.joinpath("mart.sql").read_text("utf-8"))
+        self.refresh_views()
+
+    # views over tables that only exist after `sw hris generate` / `sw models attrition`
+    OPTIONAL_VIEWS = {
+        "mart_hris.sql": ("hris.employee_months", "hris.requisitions"),
+        "mart_models.sql": ("hris.attrition_scores", "hris.model_metrics"),
+    }
+
+    def refresh_views(self) -> None:
+        existing = set(
+            self.con.execute(
+                "SELECT schema_name || '.' || table_name FROM duckdb_tables()"
+            ).fetchall()
+        )
+        existing = {row[0] for row in existing}
+        sql = resources.files("schichtwechsel.sql")
+        for name, needs in self.OPTIONAL_VIEWS.items():
+            if all(t in existing for t in needs):
+                self.con.execute(sql.joinpath(name).read_text("utf-8"))
 
     def _load_reference(self) -> None:
         """Small lookup tables, reloaded on every open so edits to the CSVs apply at once."""

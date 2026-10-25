@@ -59,7 +59,7 @@ Monthly log-odds, added to a base of -4.7 and a per-person random effect (sd 0.5
 | Store manager changed in the last 6 months | +0.6 |
 | Store vacancy rate | +2.5 per unit |
 | Competitor pressure, log(index / 100) | +0.8 per unit; index 140 is +0.27, index 50 is -0.55 |
-| Fixed-term contract ends within 2 months | +0.5 |
+| Fixed-term contract ends in the next 1 or 2 months | +0.5 |
 | January / August and September | +0.3 / +0.2 |
 
 The result is about 25% voluntary turnover a year: about 53% for minijobs, 18% for part time and 14% for full time.

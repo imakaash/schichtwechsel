@@ -29,7 +29,9 @@ Done: details fetch with text dedupe, schema, prompt, batch submit and collect, 
 2. Normalise posting counts by store count per competitor, from a small documented reference table.
 3. Data-quality checks: daily row counts, alerts on sudden drops (an early sign of API changes), coverage note for Müller.
 
-## 4. Synthetic HRIS and models
+## 4. Synthetic HRIS and models (in progress)
+
+Done: synthetic HR data and data card; attrition model with model card. Open: time-to-fill model; posting-volume forecast deferred until about eight weeks of snapshots exist.
 
 1. Generate synthetic employees, stores, applicants and monthly snapshot tables. Drivers: tenure, hours, contract, store size, region, manager changes, pay relative to the market.
 2. Real competitor hiring pressure from step 3 feeds the simulated attrition. This links internal and external data.
