@@ -13,7 +13,7 @@ Status as of 2026-10-25. Steps 2 to 7 take roughly five weeks part-time; steps 4
 
 ## 2. LLM extraction with guardrails (in progress)
 
-Done: details fetch with text dedupe, schema, prompt, batch submit and collect, plausibility and pay grounding checks, retry and failure tracking, extractor v3, 50 tuning labels and 30 holdout labels (ADRs 0006 to 0008). Holdout: 90 to 100% on most fields, 77% on entry_requirement. Open: full backfill of posting texts and extraction.
+Done: details fetch with text dedupe, schema, prompt, batch submit and collect, plausibility and pay grounding checks, retry and failure tracking, extractor v3, 50 tuning labels and 30 holdout labels (ADRs 0006 to 0008). Holdout: 90 to 100% on most fields, 77% on entry_requirement. Backfill round 1 (2026-10-25): 5,293 postings with text, 1,984 distinct texts, all extracted, no failures. Rossmann, Budni and Müller fully covered; dm 33%, Kaufland 20%, Aldi 17%, Lidl 9%. The daily job continues with 100 postings per competitor.
 
 1. Fetch the full posting text from the details endpoint, only for postings not seen before.
 2. Pydantic schema for the extracted fields: role family, weekly hours, contract type, pay range and unit, benefits as fixed codes (staff discount, holiday pay, bike leasing, company pension, ...), Ausbildung vs. experienced hire vs. career changer, required language level.
