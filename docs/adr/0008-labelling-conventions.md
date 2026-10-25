@@ -42,8 +42,34 @@ Engineering changes found along the way:
 
 v2 shows why each change needs a re-run: a broad `side_job` definition and the pay rule leaked into other fields.
 
+## Holdout result
+
+30 further postings, from six retailers, labelled after v3 was frozen. The prompt was never tuned on them, so these are the numbers to report.
+
+| Field | v3 on tuned set | v3 on holdout |
+|---|---|---|
+| role_family | 94% | 97% |
+| track | 98% | 90% |
+| entry_requirement | 90% | 77% |
+| hours | 100% | 100% |
+| contract | 94% | 90% |
+| pay (min, max, period) | 98% | 100% |
+| tariff | 100% | 90% |
+| staff discount, vacation days | 100% | 100% |
+| german_level | 100% | 100% |
+| benefits precision / recall | 100% / 97% | 98% / 97% |
+
+Known weak spots, left as they are so the holdout stays a clean test:
+
+- entry_requirement: "career changers welcome" versus nothing stated is a blurry line. Treat this field as lower confidence.
+- Aldi's "Dauer der Befristung" wording is still not read as fixed term reliably.
+- "übertarifliches Gehalt" next to a Tarifvertrag mention comes out as `tariff` instead of `above_tariff`.
+- Some dm Aushilfe postings come out as `regular`.
+
+A prompt change that addresses these needs a new holdout set to be measured.
+
 ## Consequences
 
-- These numbers are optimistic. The prompt was tuned against the same 50 postings it is scored on. Final accuracy is measured on a fresh labelled set that the prompt never saw.
+- The tuned-set numbers are optimistic, as the holdout confirms for entry_requirement, track and tariff.
 - Three full runs over 123 texts cost about 15 cents.
 - 5 of 123 postings are not in German (Bulgarian, Hungarian, Romanian), all warehouse jobs. Worth tracking as a recruiting signal.
