@@ -9,11 +9,11 @@ Status as of 2026-10-25. Steps 2 to 7 take roughly five weeks part-time; steps 4
 - Raw payloads in `data/raw/`, DuckDB table with one row per posting per day.
 - `posting_lifecycle` view: first seen, last seen, days online, still open.
 - CLI: `sw discover`, `sw snapshot`, `sw profile`. Tests and ADRs 0001 to 0005.
-- Ongoing: run `sw snapshot` daily so a time series builds up (automated in step 6).
+- Daily snapshots ran from 2026-10-25 to 2026-11-05, then stopped (ADR 0014).
 
 ## 2. LLM extraction with guardrails (in progress)
 
-Done: details fetch with text dedupe, schema, prompt, batch submit and collect, plausibility and pay grounding checks, retry and failure tracking, extractor v3, 50 tuning labels and 30 holdout labels (ADRs 0006 to 0008). Holdout: 90 to 100% on most fields, 77% on entry_requirement. Backfill round 1 (2026-10-25): 5,293 postings with text, 1,984 distinct texts, all extracted, no failures. Rossmann, Budni and Müller fully covered; dm 33%, Kaufland 20%, Aldi 17%, Lidl 9%. The daily job continues with 100 postings per competitor.
+Done: details fetch with text dedupe, schema, prompt, batch submit and collect, plausibility and pay grounding checks, retry and failure tracking, extractor v3, 50 tuning labels and 30 holdout labels (ADRs 0006 to 0008). Holdout: 90 to 100% on most fields, 77% on entry_requirement. Backfill round 1 (2026-10-25): 5,293 postings with text, 1,984 distinct texts, all extracted, no failures. Rossmann, Budni and Müller fully covered; dm 33%, Kaufland 20%, Aldi 17%, Lidl 9%. The daily job added 100 postings per competitor until it was stopped on 2026-11-06.
 
 1. Fetch the full posting text from the details endpoint, only for postings not seen before.
 2. Pydantic schema for the extracted fields: role family, weekly hours, contract type, pay range and unit, benefits as fixed codes (staff discount, holiday pay, bike leasing, company pension, ...), Ausbildung vs. experienced hire vs. career changer, required language level.
@@ -62,8 +62,8 @@ Done: Streamlit UI with four pages in German and English, own palette and type (
 2. Own palette and typography, no default theme.
 3. Hosting on Streamlit Community Cloud; the app downloads the warehouse from the `data` release.
 4. Secrets (API key, access code) in Streamlit's secrets store.
-5. GitHub Actions: daily cron for snapshot, incremental extraction and data upload; CI on every push; weekly evals.
-6. Data state in a GitHub release, replaced daily.
+5. GitHub Actions: CI on every push; weekly evals. The daily refresh ran until 2026-11-05 and was then removed (ADR 0014).
+6. Data state in a GitHub release.
 
 ## 7. Presentation (in progress)
 

@@ -2,7 +2,7 @@
 
 On Streamlit Community Cloud the repository has no data: the warehouse is
 downloaded from the `data` release on first use and refreshed every few
-hours, after the daily job has replaced it. Locally, an existing
+hours, in case the release has been replaced. Locally, an existing
 data/warehouse.duckdb is used as is and never overwritten.
 """
 

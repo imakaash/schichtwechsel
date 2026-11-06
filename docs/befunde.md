@@ -4,8 +4,8 @@ Stand: Snapshot vom 25.10.2026, 27.668 offene Stellen von dm, Rossmann, Müller,
 
 Zwei Einschränkungen vorab:
 
-- **Ein Stichtag.** Die tägliche Erfassung läuft seit dem 25.10.2026. Aussagen über Entwicklungen (Saisonalität, Besetzungsdauer am Markt) sind erst nach einigen Wochen möglich.
-- **Teilabdeckung bei Textfeldern.** Gehalt, Benefits und Tarifbezug stammen aus den Anzeigentexten. Ausgewertet sind bisher Rossmann, Budni und Müller vollständig, dm zu 43 %, Kaufland zu 28 %, Aldi zu 23 % und Lidl zu 12 % der Anzeigen (jeweils die neuesten). Die Abdeckung wächst täglich.
+- **Ein Stichtag.** Die tägliche Erfassung lief vom 25.10. bis 05.11.2026. Aussagen über Entwicklungen (Saisonalität, Besetzungsdauer am Markt) bräuchten eine längere Zeitreihe.
+- **Teilabdeckung bei Textfeldern.** Gehalt, Benefits und Tarifbezug stammen aus den Anzeigentexten. Ausgewertet sind bisher Rossmann, Budni und Müller vollständig, dm zu 43 %, Kaufland zu 28 %, Aldi zu 23 % und Lidl zu 12 % der Anzeigen (jeweils die neuesten).
 
 ## 1. Der Druck auf Filialpersonal liegt im Südwesten
 
@@ -85,6 +85,6 @@ Die Personaldaten im Projekt beschreiben eine **erfundene** Kette mit 300 Filial
 
 ## Nächste Schritte
 
-1. Nach acht Wochen täglicher Daten: Prognose des Anzeigenvolumens je Wettbewerber und Saisonmuster (Ausbildungsstart, Weihnachtsgeschäft).
+1. Mit einer längeren Zeitreihe: Prognose des Anzeigenvolumens je Wettbewerber und Saisonmuster (Ausbildungsstart, Weihnachtsgeschäft).
 2. Besetzungsdauer am Markt aus der Verweildauer der Anzeigen schätzen, als Gegenstück zu den internen Daten.
 3. Regionale Auswertung unterhalb der Bundesländer (Umkreis um eine Filiale), die Koordinaten liegen bereits vor.

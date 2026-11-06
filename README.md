@@ -8,11 +8,11 @@
 
 [English version below](#english)
 
-*Schichtwechsel* ist im Filialgeschäft Alltag. Teuer wird es, wenn Mitarbeitende nicht die Schicht wechseln, sondern den Arbeitgeber. Das Projekt verbindet beide Seiten: den Stellenmarkt der Wettbewerber, täglich erfasst, und ein internes Personalmodell, in dem dieser Wettbewerbsdruck das Abgangsrisiko mitbestimmt.
+*Schichtwechsel* ist im Filialgeschäft Alltag. Teuer wird es, wenn Mitarbeitende nicht die Schicht wechseln, sondern den Arbeitgeber. Das Projekt verbindet beide Seiten: den Stellenmarkt der Wettbewerber, täglich erfasst vom 25.10. bis 05.11.2026, und ein internes Personalmodell, in dem dieser Wettbewerbsdruck das Abgangsrisiko mitbestimmt.
 
 ## Was es macht
 
-1. **Wettbewerbsradar.** Täglich alle Stellenanzeigen von dm, Rossmann, Müller, Budni, Lidl, Aldi und Kaufland aus der Jobsuche der Bundesagentur für Arbeit (rund 27.700 offene Stellen). Daraus: Wettbewerbsdruck je Bundesland, Stellen je Filiale, Ausbildungsanteil.
+1. **Wettbewerbsradar.** Alle Stellenanzeigen von dm, Rossmann, Müller, Budni, Lidl, Aldi und Kaufland aus der Jobsuche der Bundesagentur für Arbeit, zwölf Tage lang täglich erfasst (rund 32.000 offene Stellen). Daraus: Wettbewerbsdruck je Bundesland, Stellen je Filiale, Ausbildungsanteil.
 2. **Felder aus Anzeigentexten.** Claude liest Gehalt, Stunden, Vertragsart, Tarifbezug und 16 Benefit-Arten aus den Texten. Geprüft gegen handgelabelte Anzeigen, die das Modell nie gesehen hat: 90 bis 100 % Genauigkeit bei den meisten Feldern.
 3. **Internes Personalmodell.** Eine synthetische Kette mit 300 Filialen, monatliche Abgangswahrscheinlichkeit (Survival-Modell) und Besetzungsdauer, mit Modellkarten und einer Fairness-Prüfung nach Altersgruppen.
 4. **Analyse-Assistent.** Fragen auf Deutsch oder Englisch; der Assistent fragt die Daten per SQL ab, und jede Zahl in der Antwort wird gegen die Abfrageergebnisse geprüft.
@@ -46,11 +46,11 @@ Die wichtigsten Ergebnisse stehen in [docs/befunde.md](docs/befunde.md).
 
 > Independent portfolio project, not affiliated with any company named. Job postings are real and public; the HR data is synthetic and describes a fictional chain.
 
-*Schichtwechsel* means shift change. In a store business, people changing shifts is routine; people changing employers is the expensive part. The project connects both sides: competitor hiring, collected daily, and an internal workforce model in which that hiring pressure drives attrition.
+*Schichtwechsel* means shift change. In a store business, people changing shifts is routine; people changing employers is the expensive part. The project connects both sides: competitor hiring, collected daily from 25 October to 5 November 2026, and an internal workforce model in which that hiring pressure drives attrition.
 
 **What it does**
 
-1. **Competitor radar.** Every posting by dm, Rossmann, Müller, Budni, Lidl, Aldi and Kaufland from the job search of the Bundesagentur für Arbeit, daily (about 27,700 open postings). Hiring pressure per federal state, postings per store, apprenticeship share.
+1. **Competitor radar.** Every posting by dm, Rossmann, Müller, Budni, Lidl, Aldi and Kaufland from the job search of the Bundesagentur für Arbeit, collected daily for twelve days (about 32,000 open postings). Hiring pressure per federal state, postings per store, apprenticeship share.
 2. **Fields from posting text.** Claude extracts pay, hours, contract type, collective agreement and 16 kinds of benefits. Tested against hand-labelled postings the prompt never saw: 90 to 100% accuracy on most fields.
 3. **Internal workforce model.** A synthetic chain of 300 stores, a monthly attrition hazard (discrete-time survival model) and time to fill, with model cards and a calibration check by age band.
 4. **Analyst.** Questions in German or English; it queries the data in SQL, and every figure in an answer is checked against the query results.
@@ -63,7 +63,7 @@ Die wichtigsten Ergebnisse stehen in [docs/befunde.md](docs/befunde.md).
 
 ```mermaid
 flowchart LR
-    BA["BA Jobsuche API"] -->|"daily, GitHub Actions"| SNAP["Snapshots and posting texts"]
+    BA["BA Jobsuche API"] -->|"daily snapshots, 25.10. to 05.11.2026"| SNAP["Snapshots and posting texts"]
     SNAP --> WH[("DuckDB warehouse")]
     WH -->|"new texts"| EXT["Claude Haiku, Batch API<br/>schema and pay checks"]
     EXT --> WH
@@ -126,11 +126,11 @@ Competitors and search terms are in `config/competitors.yaml`, sourced store cou
 |---|---|
 | [docs/befunde.md](docs/befunde.md) | findings, in German |
 | [docs/plan.md](docs/plan.md) | project plan and status |
-| [docs/adr/](docs/adr) | 13 decision records |
+| [docs/adr/](docs/adr) | 14 decision records |
 | [docs/data-card.md](docs/data-card.md) | how the synthetic HR data is built |
 | [docs/model-card-attrition.md](docs/model-card-attrition.md), [docs/model-card-time-to-fill.md](docs/model-card-time-to-fill.md) | model cards |
 | [docs/design.md](docs/design.md) | palette, type, chart rules |
-| [docs/deploy.md](docs/deploy.md) | hosting and daily job |
+| [docs/deploy.md](docs/deploy.md) | hosting |
 
 ## Data source
 

@@ -23,7 +23,7 @@
  },
  "radar": {
   "title": "Wer sucht wo Personal?",
-  "intro": "Offene Stellen der sieben großen Drogerie- und Lebensmittelhändler, täglich aus der Jobsuche der Bundesagentur für Arbeit.",
+  "intro": "Offene Stellen der sieben großen Drogerie- und Lebensmittelhändler aus der Jobsuche der Bundesagentur für Arbeit.",
   "tile_open": "Offene Stellen gesamt",
   "tile_pressure": "Höchster Druck",
   "tile_per_store": "Meiste Stellen je Filiale",
