@@ -2,7 +2,7 @@
 
 **Wettbewerb und Belegschaft im Drogeriehandel.** Wer sucht wo Personal, was wird geboten, und wer aus der eigenen Belegschaft geht als Nächstes?
 
-**Live:** https://schichtwechsel.streamlit.app (Deutsch und Englisch; der Analyse-Assistent ist mit einem Zugangscode geschützt, den ich auf Anfrage gern teile)
+**Live:** https://schichtwechsel.streamlit.app (Deutsch und Englisch; der Analyse-Assistent ist derzeit abgeschaltet, seine Arbeitsweise ist unten beschrieben)
 
 > Unabhängiges Portfolioprojekt. Keine Verbindung zu den genannten Unternehmen. Die Stellendaten sind echt und öffentlich, die Personaldaten sind synthetisch und beschreiben eine erfundene Kette.
 
@@ -42,7 +42,7 @@ Die wichtigsten Ergebnisse stehen in [docs/befunde.md](docs/befunde.md).
 
 **Hiring and workforce intelligence for German drugstore retail.** Who is hiring where, what do they offer, and who in your own workforce is likely to leave next?
 
-**Live:** https://schichtwechsel.streamlit.app (German and English; the analyst is behind an access code, available on request)
+**Live:** https://schichtwechsel.streamlit.app (German and English; the analyst is switched off for now; how it works is described below)
 
 > Independent portfolio project, not affiliated with any company named. Job postings are real and public; the HR data is synthetic and describes a fictional chain.
 
@@ -126,7 +126,7 @@ Competitors and search terms are in `config/competitors.yaml`, sourced store cou
 |---|---|
 | [docs/befunde.md](docs/befunde.md) | findings, in German |
 | [docs/plan.md](docs/plan.md) | project plan and status |
-| [docs/adr/](docs/adr) | 14 decision records |
+| [docs/adr/](docs/adr) | 15 decision records |
 | [docs/data-card.md](docs/data-card.md) | how the synthetic HR data is built |
 | [docs/model-card-attrition.md](docs/model-card-attrition.md), [docs/model-card-time-to-fill.md](docs/model-card-time-to-fill.md) | model cards |
 | [docs/design.md](docs/design.md) | palette, type, chart rules |

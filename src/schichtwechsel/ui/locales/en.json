@@ -94,6 +94,7 @@
    "write_request": "change to data",
    "unsupported_data": "data not available"
   },
+  "off": "The analyst is switched off for now, because it uses a paid language model. The other pages show all the analyses.",
   "locked": "The analyst uses a paid language model, so it is protected by an access code.",
   "code": "Access code",
   "unlock": "Unlock",

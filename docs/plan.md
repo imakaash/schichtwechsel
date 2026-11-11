@@ -62,7 +62,7 @@ Done: Streamlit UI with four pages in German and English, own palette and type (
 2. Own palette and typography, no default theme.
 3. Hosting on Streamlit Community Cloud; the app downloads the warehouse from the `data` release.
 4. Secrets (API key, access code) in Streamlit's secrets store.
-5. GitHub Actions: CI on every push; weekly evals. The daily refresh ran until 2026-11-05 and was then removed (ADR 0014).
+5. GitHub Actions: CI on every push. Weekly evals ran until 2026-11-09 (ADR 0015). The daily refresh ran until 2026-11-05 and was then removed (ADR 0014).
 6. Data state in a GitHub release.
 
 ## 7. Presentation (in progress)

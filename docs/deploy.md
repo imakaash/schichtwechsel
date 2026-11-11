@@ -30,14 +30,13 @@ Every push to `main` redeploys the app. To change a secret, edit it in the app's
 
 | Where | Name | Purpose |
 |---|---|---|
-| GitHub secret | `ANTHROPIC_API_KEY` | weekly evals |
 | Streamlit secrets | `ANTHROPIC_API_KEY` | the analyst |
 | Streamlit secrets | `SW_ACCESS_CODE` | unlocks the analyst page |
 | Streamlit secrets, optional | `SW_DAILY_BUDGET_USD`, `SW_MAX_QUESTIONS` | change the caps (defaults 2 USD and 30) |
 
 ## Cost guards
 
-- The analyst page is locked behind the access code; the dashboards are public.
+- The analyst is switched off in code (`ASSISTANT_ON` in `src/schichtwechsel/ui/pages.py`, ADR 0015). When on, it is locked behind the access code; the dashboards are public.
 - The app refuses new questions once the day's spend reaches the budget and caps a conversation at 30 questions. Both counters reset when the app restarts.
 
 ## Limits

@@ -12,6 +12,8 @@ from schichtwechsel.ui.backend import LimitReached, ask, dataset, new_conversati
 from schichtwechsel.ui.i18n import label, lang, number, percent, t
 
 AVATAR = {"user": ":material/person:", "assistant": ":material/query_stats:"}
+# The analyst calls Claude Sonnet and costs API credit; switched off since 2026-11-11 (ADR 0015).
+ASSISTANT_ON = False
 
 
 def mode() -> str:
@@ -289,6 +291,9 @@ def unlocked() -> bool:
 def assistant() -> None:
     st.title(t("assistant.title"))
     st.caption(t("assistant.intro"))
+    if not ASSISTANT_ON:
+        st.info(t("assistant.off"))
+        return
     if not unlocked():
         return
     state = st.session_state

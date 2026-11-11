@@ -94,6 +94,7 @@
    "write_request": "Änderung an Daten",
    "unsupported_data": "Daten nicht vorhanden"
   },
+  "off": "Der Assistent ist derzeit abgeschaltet, weil er ein kostenpflichtiges Sprachmodell nutzt. Die übrigen Seiten zeigen alle Auswertungen.",
   "locked": "Der Assistent nutzt ein kostenpflichtiges Sprachmodell und ist deshalb mit einem Zugangscode geschützt.",
   "code": "Zugangscode",
   "unlock": "Freischalten",
